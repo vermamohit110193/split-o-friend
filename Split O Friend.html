@@ -1,0 +1,627 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1">&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1">&lt;title&gt;Split O Friend&lt;/title&gt;</p>
+<p class="p1">&lt;link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css"&gt;</p>
+<p class="p1">&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--green: #1D9E75;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--green-dark: #0F6E56;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--green-light: #E1F5EE;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--red: #D85A30;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--red-light: #FAECE7;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--blue: #378ADD;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--blue-light: #E6F1FB;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--amber: #BA7517;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--amber-light: #FAEEDA;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--purple: #534AB7;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--purple-light: #EEEDFE;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--bg: #F5F4F0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--bg-card: #FFFFFF;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--bg-secondary: #F0EFE9;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--text: #1a1a1a;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--text-secondary: #6b6b6b;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--text-hint: #9a9a9a;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--border: rgba(0,0,0,0.1);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--border-md: rgba(0,0,0,0.18);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--radius: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--radius-lg: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--shadow: 0 1px 4px rgba(0,0,0,0.07);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>[data-theme="dark"] {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--bg: #141414;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--bg-card: #1e1e1e;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--bg-secondary: #2a2a2a;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--text: #f0f0f0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--text-secondary: #a0a0a0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--text-hint: #666;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--border: rgba(255,255,255,0.1);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--border-md: rgba(255,255,255,0.2);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--green-light: #0a3d2b;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--red-light: #3d1a0a;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--blue-light: #0d2a45;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--amber-light: #3d2800;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--purple-light: #1e1a4a;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>--shadow: 0 1px 4px rgba(0,0,0,0.3);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>* { box-sizing: border-box; margin: 0; padding: 0; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.2s, color 0.2s; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.topbar { background: var(--bg-card); border-bottom: 0.5px solid var(--border); padding: 0 1rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.topbar-left { display: flex; align-items: center; gap: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.logo { font-size: 22px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.logo span { color: var(--text); font-weight: 400; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.topbar-right { display: flex; align-items: center; gap: 8px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.icon-btn { background: none; border: 0.5px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; color: var(--text-secondary); font-size: 13px; display: flex; align-items: center; gap: 5px; transition: all 0.15s; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.icon-btn:hover { background: var(--bg-secondary); color: var(--text); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.currency-sel { background: var(--bg-secondary); border: 0.5px solid var(--border); border-radius: 8px; padding: 6px 8px; font-size: 13px; color: var(--text); cursor: pointer; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.wrap { max-width: 700px; margin: 0 auto; padding: 1.5rem 1rem 6rem; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.stat { background: var(--bg-card); border-radius: var(--radius); border: 0.5px solid var(--border); padding: 14px; box-shadow: var(--shadow); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.stat-label { font-size: 11px; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.stat-value { font-size: 22px; font-weight: 600; color: var(--text); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.stat-value.green { color: var(--green); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.stat-value.red { color: var(--red); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.card { background: var(--bg-card); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 1.1rem 1.25rem; margin-bottom: 14px; box-shadow: var(--shadow); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.card-title { font-size: 11px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.tabs { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-card); border-top: 0.5px solid var(--border); display: flex; z-index: 100; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px 14px; cursor: pointer; color: var(--text-hint); font-size: 10px; border: none; background: none; transition: color 0.15s; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.tab i { font-size: 22px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.tab.active { color: var(--green); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.section { display: none; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.section.active { display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.form-group { margin-bottom: 14px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.form-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>input[type=text], input[type=number], input[type=email], select, textarea {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>width: 100%; padding: 10px 12px; font-size: 14px; border: 0.5px solid var(--border-md); border-radius: var(--radius); background: var(--bg-secondary); color: var(--text); outline: none; transition: border-color 0.15s; font-family: inherit;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>input:focus, select:focus { border-color: var(--green); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.btn { padding: 11px 18px; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; border: 0.5px solid var(--border-md); background: var(--bg-secondary); color: var(--text); transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.btn:hover { background: var(--border); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.btn.primary { background: var(--green); color: #fff; border-color: var(--green); width: 100%; justify-content: center; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.btn.primary:hover { background: var(--green-dark); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.btn.sm { padding: 5px 10px; font-size: 12px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.btn.danger { background: var(--red-light); color: var(--red); border-color: transparent; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.btn.ghost { background: transparent; border-color: transparent; color: var(--text-secondary); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.row-flex { display: flex; gap: 8px; align-items: flex-start; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.row-flex input { flex: 1; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.avatar { width: 40px; height: 40px; min-width: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.avatar.sm { width: 32px; height: 32px; min-width: 32px; font-size: 12px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.list-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--border); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.list-item:last-child { border-bottom: none; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.list-info { flex: 1; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.list-name { font-size: 14px; font-weight: 500; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.list-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.amount-right { text-align: right; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.amount-big { font-size: 16px; font-weight: 600; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.amount-small { font-size: 11px; color: var(--text-hint); margin-top: 2px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.green-text { color: var(--green); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.red-text { color: var(--red); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.cat-icon { font-size: 28px; width: 40px; height: 40px; min-width: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); border-radius: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.chip { padding: 5px 12px; border-radius: 20px; font-size: 13px; border: 0.5px solid var(--border-md); cursor: pointer; background: var(--bg-secondary); color: var(--text-secondary); transition: all 0.15s; user-select: none; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.chip.selected { background: var(--green-light); border-color: var(--green); color: var(--green); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.split-type { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.split-opt { padding: 10px; border: 0.5px solid var(--border-md); border-radius: var(--radius); text-align: center; font-size: 13px; cursor: pointer; background: var(--bg-secondary); color: var(--text-secondary); transition: all 0.15s; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.split-opt.selected { border-color: var(--green); color: var(--green); background: var(--green-light); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-hint); font-size: 14px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.empty i { font-size: 40px; display: block; margin-bottom: 10px; opacity: 0.4; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.settle-row { background: var(--bg-secondary); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.settle-arrow { color: var(--text-hint); font-size: 18px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.settle-amt { font-size: 15px; font-weight: 600; color: var(--red); margin-left: auto; margin-right: 8px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.badge.green { background: var(--green-light); color: var(--green); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.badge.red { background: var(--red-light); color: var(--red); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%) translateY(-10px); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.25s; pointer-events: none; z-index: 999; white-space: nowrap; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>[data-theme="dark"] .toast { background: #f0f0f0; color: #1a1a1a; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.modal-overlay.open { display: flex; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.modal { background: var(--bg-card); border-radius: 20px 20px 0 0; padding: 1.5rem; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.modal-handle { width: 40px; height: 4px; background: var(--border-md); border-radius: 2px; margin: 0 auto 1.2rem; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.modal-title { font-size: 17px; font-weight: 600; margin-bottom: 1.2rem; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.history-tag { font-size: 11px; color: var(--text-hint); background: var(--bg-secondary); padding: 3px 8px; border-radius: 20px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.section-heading { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin: 1.2rem 0 8px; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>@media(min-width:600px){ .wrap { padding: 2rem 1.5rem 6rem; } }</p>
+<p class="p1">&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;div class="topbar"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="topbar-left"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;span style="font-size:24px"&gt;🤝&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="logo"&gt;Split&lt;span&gt; O Friend&lt;/span&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="topbar-right"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;select class="currency-sel" id="currency-sel" onchange="setCurrency(this.value)"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;option value="£"&gt;£ GBP&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;option value="$"&gt;$ USD&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;option value="€"&gt;€ EUR&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;option value="₹"&gt;₹ INR&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;option value="¥"&gt;¥ JPY&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;option value="A$"&gt;A$ AUD&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;option value="C$"&gt;C$ CAD&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;button class="icon-btn" onclick="toggleTheme()" id="theme-btn"&gt;&lt;i class="ti ti-moon"&gt;&lt;/i&gt;&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;div class="wrap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Dashboard --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="tab-dashboard" class="section active"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="summary-grid"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="stat"&gt;&lt;div class="stat-label"&gt;Total spent&lt;/div&gt;&lt;div class="stat-value" id="s-total"&gt;£0&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="stat"&gt;&lt;div class="stat-label"&gt;You are owed&lt;/div&gt;&lt;div class="stat-value green" id="s-owed"&gt;£0&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="stat"&gt;&lt;div class="stat-label"&gt;You owe&lt;/div&gt;&lt;div class="stat-value red" id="s-owe"&gt;£0&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="card-title"&gt;Balances&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="d-balances"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="card-header"&gt;&lt;div class="card-title" style="margin-bottom:0"&gt;Recent expenses&lt;/div&gt;&lt;button class="btn sm ghost" onclick="switchTab('history')"&gt;&lt;i class="ti ti-history"&gt;&lt;/i&gt; All&lt;/button&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="d-expenses"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Add Expense --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="tab-add" class="section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="card-title"&gt;New expense&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-group"&gt;&lt;label class="form-label"&gt;Description&lt;/label&gt;&lt;input type="text" id="e-desc" placeholder="e.g. Dinner at Nobu, Uber ride..."&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="row2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="form-group"&gt;&lt;label class="form-label"&gt;Amount&lt;/label&gt;&lt;input type="number" id="e-amount" placeholder="0.00" min="0" step="0.01"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="form-group"&gt;&lt;label class="form-label"&gt;Category&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;select id="e-cat"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="🍽️"&gt;🍽️ Food &amp; Drink&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="🚗"&gt;🚗 Transport&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="🏠"&gt;🏠 Housing&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="🎉"&gt;🎉 Entertainment&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="🛒"&gt;🛒 Shopping&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="💊"&gt;💊 Health&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="✈️"&gt;✈️ Travel&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="⚡"&gt;⚡ Utilities&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;option value="📦"&gt;📦 Other&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-group"&gt;&lt;label class="form-label"&gt;Paid by&lt;/label&gt;&lt;select id="e-paidby"&gt;&lt;/select&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="form-label"&gt;Split between&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="chips" id="e-members"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;label class="form-label"&gt;Split type&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="split-type"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="split-opt selected" id="so-equal" onclick="setSplit('equal')"&gt;&lt;i class="ti ti-divide"&gt;&lt;/i&gt;&lt;br&gt;Equal split&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="split-opt" id="so-payer" onclick="setSplit('payer')"&gt;&lt;i class="ti ti-user-dollar"&gt;&lt;/i&gt;&lt;br&gt;One person pays&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-group"&gt;&lt;label class="form-label"&gt;Date&lt;/label&gt;&lt;input type="date" id="e-date"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="form-group"&gt;&lt;label class="form-label"&gt;Notes (optional)&lt;/label&gt;&lt;input type="text" id="e-notes" placeholder="Any extra details..."&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="btn primary" onclick="addExpense()"&gt;&lt;i class="ti ti-plus"&gt;&lt;/i&gt; Add expense&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Friends --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="tab-friends" class="section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="card-title"&gt;Add a friend&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="row-flex"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="text" id="f-name" placeholder="Name" onkeydown="if(event.key==='Enter')addFriend()"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="btn" onclick="addFriend()"&gt;&lt;i class="ti ti-user-plus"&gt;&lt;/i&gt; Add&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="card-title"&gt;Your group&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="friends-list"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- Settle Up --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="tab-settle" class="section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="card-title"&gt;Who pays whom&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="settle-list"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="card-title"&gt;Per person summary&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="person-summary"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;!-- History --&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div id="tab-history" class="section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="card-header"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="card-title" style="margin-bottom:0"&gt;All expenses&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="btn sm danger" onclick="clearAll()"&gt;&lt;i class="ti ti-trash"&gt;&lt;/i&gt; Clear all&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div id="history-list"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- Bottom tabs --&gt;</p>
+<p class="p1">&lt;div class="tabs"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button class="tab active" onclick="switchTab('dashboard')" id="t-dashboard"&gt;&lt;i class="ti ti-layout-dashboard"&gt;&lt;/i&gt;Home&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button class="tab" onclick="switchTab('add')" id="t-add"&gt;&lt;i class="ti ti-circle-plus"&gt;&lt;/i&gt;Add&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button class="tab" onclick="switchTab('friends')" id="t-friends"&gt;&lt;i class="ti ti-users"&gt;&lt;/i&gt;Friends&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button class="tab" onclick="switchTab('settle')" id="t-settle"&gt;&lt;i class="ti ti-arrows-exchange"&gt;&lt;/i&gt;Settle&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;button class="tab" onclick="switchTab('history')" id="t-history"&gt;&lt;i class="ti ti-history"&gt;&lt;/i&gt;History&lt;/button&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;!-- Expense detail modal --&gt;</p>
+<p class="p1">&lt;div class="modal-overlay" id="detail-modal" onclick="closeModal()"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="modal" onclick="event.stopPropagation()"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="modal-handle"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="modal-content"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;div class="toast" id="toast"&gt;&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">// ── State ──────────────────────────────────────────────</p>
+<p class="p1">let state = {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>friends: ['Alice', 'Bob', 'Charlie'],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>expenses: [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{id:1,desc:'Dinner',amount:60,paidBy:'You',cat:'🍽️',members:['You','Alice','Bob'],splitType:'equal',date:'2026-05-25',notes:''},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{id:2,desc:'Uber home',amount:18,paidBy:'Alice',cat:'🚗',members:['You','Alice'],splitType:'equal',date:'2026-05-24',notes:''},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{id:3,desc:'Groceries',amount:45,paidBy:'Bob',cat:'🛒',members:['You','Alice','Bob','Charlie'],splitType:'equal',date:'2026-05-23',notes:'Split evenly'},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{id:4,desc:'Cinema tickets',amount:32,paidBy:'You',cat:'🎉',members:['You','Charlie'],splitType:'equal',date:'2026-05-22',notes:''},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>currency: '£',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>theme: 'light',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>nextId: 5</p>
+<p class="p1">};</p>
+<p class="p1">let splitType = 'equal';</p>
+<p class="p1">let selectedMembers = [];</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Persistence ────────────────────────────────────────</p>
+<p class="p1">function save() { localStorage.setItem('splitofriend', JSON.stringify(state)); }</p>
+<p class="p1">function load() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const d = localStorage.getItem('splitofriend');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (d) state = JSON.parse(d);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.documentElement.dataset.theme = state.theme;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('currency-sel').value = state.currency;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>updateThemeIcon();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Helpers ────────────────────────────────────────────</p>
+<p class="p1">const colors = [</p>
+<p class="p1"><span class="Apple-converted-space">  </span>['#E1F5EE','#0F6E56'],['#E6F1FB','#185FA5'],['#FAEEDA','#854F0B'],</p>
+<p class="p1"><span class="Apple-converted-space">  </span>['#FBEAF0','#993556'],['#EEEDFE','#534AB7'],['#EAF3DE','#3B6D11']</p>
+<p class="p1">];</p>
+<p class="p1">function avatarStyle(name) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const i = (name.charCodeAt(0) + (name.charCodeAt(1)||0)) % colors.length;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return `background:${colors[i][0]};color:${colors[i][1]}`;</p>
+<p class="p1">}</p>
+<p class="p1">function initials(name) { return name.split(' ').map(w=&gt;w[0]).join('').toUpperCase().slice(0,2); }</p>
+<p class="p1">function fmt(n) { return state.currency + Math.abs(n).toFixed(2); }</p>
+<p class="p1">function allMembers() { return ['You', ...state.friends]; }</p>
+<p class="p1">function today() { return new Date().toISOString().slice(0,10); }</p>
+<p class="p1">function fmtDate(d) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!d) return '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const t = today(), y = new Date(); y.setDate(y.getDate()-1);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const yy = y.toISOString().slice(0,10);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (d === t) return 'Today';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (d === yy) return 'Yesterday';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function computeBalances() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const bal = {};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>allMembers().forEach(m =&gt; bal[m] = 0);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>state.expenses.forEach(e =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (!e.members || !e.members.length) return;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const share = e.amount / e.members.length;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>e.members.forEach(m =&gt; { if (m !== e.paidBy) bal[m] = (bal[m]||0) - share; });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const others = e.members.filter(m =&gt; m !== e.paidBy);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>bal[e.paidBy] = (bal[e.paidBy]||0) + others.length * share;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return bal;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function toast(msg) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const t = document.getElementById('toast');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>t.textContent = msg;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>t.classList.add('show');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>setTimeout(() =&gt; t.classList.remove('show'), 2000);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Theme &amp; Currency ───────────────────────────────────</p>
+<p class="p1">function toggleTheme() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>state.theme = state.theme === 'light' ? 'dark' : 'light';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.documentElement.dataset.theme = state.theme;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>updateThemeIcon();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>save();</p>
+<p class="p1">}</p>
+<p class="p1">function updateThemeIcon() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('theme-btn').innerHTML = state.theme === 'dark'</p>
+<p class="p1"><span class="Apple-converted-space">    </span>? '&lt;i class="ti ti-sun"&gt;&lt;/i&gt;' : '&lt;i class="ti ti-moon"&gt;&lt;/i&gt;';</p>
+<p class="p1">}</p>
+<p class="p1">function setCurrency(c) { state.currency = c; save(); renderAll(); }</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Tabs ───────────────────────────────────────────────</p>
+<p class="p1">function switchTab(t) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>['dashboard','add','friends','settle','history'].forEach(id =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('tab-'+id).classList.toggle('active', id===t);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('t-'+id).classList.toggle('active', id===t);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(t==='dashboard') renderDashboard();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(t==='add') renderAddForm();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(t==='friends') renderFriends();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(t==='settle') renderSettle();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if(t==='history') renderHistory();</p>
+<p class="p1">}</p>
+<p class="p1">function renderAll() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderDashboard(); renderFriends(); renderSettle(); renderHistory();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Dashboard ──────────────────────────────────────────</p>
+<p class="p1">function renderDashboard() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const bal = computeBalances();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const youOwe = Math.max(0, -(bal['You']||0));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const youOwed = Math.max(0, bal['You']||0);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const total = state.expenses.reduce((s,e)=&gt;s+e.amount,0);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('s-total').textContent = fmt(total);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('s-owed').textContent = fmt(youOwed);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('s-owe').textContent = fmt(youOwe);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Balances</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const bl = document.getElementById('d-balances');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!state.friends.length) { bl.innerHTML = '&lt;div class="empty"&gt;&lt;i class="ti ti-users"&gt;&lt;/i&gt;Add friends to see balances&lt;/div&gt;'; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>else {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>bl.innerHTML = state.friends.map(f =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const b = bal[f] || 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const label = b &gt; 0 ? 'owes you' : b &lt; 0 ? 'you owe' : 'settled up';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const cls = b &gt; 0 ? 'green-text' : b &lt; 0 ? 'red-text' : '';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const sign = b &gt; 0 ? '+' : b &lt; 0 ? '-' : '';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return `&lt;div class="list-item"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="avatar" style="${avatarStyle(f)}"&gt;${initials(f)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="list-info"&gt;&lt;div class="list-name"&gt;${f}&lt;/div&gt;&lt;div class="list-sub"&gt;${label}&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="amount-right"&gt;&lt;div class="amount-big ${cls}"&gt;${sign}${fmt(b)}&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}).join('');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Expenses</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const el = document.getElementById('d-expenses');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!state.expenses.length) { el.innerHTML = '&lt;div class="empty"&gt;&lt;i class="ti ti-receipt"&gt;&lt;/i&gt;No expenses yet&lt;/div&gt;'; return; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>el.innerHTML = state.expenses.slice().reverse().slice(0,4).map(e =&gt; expenseRow(e)).join('');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function expenseRow(e) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const share = (e.amount / (e.members||[e.paidBy]).length).toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return `&lt;div class="list-item" onclick="openDetail(${e.id})" style="cursor:pointer"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="cat-icon"&gt;${e.cat}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="list-info"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="list-name"&gt;${e.desc}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="list-sub"&gt;Paid by ${e.paidBy} · ${fmtDate(e.date)} · ${(e.members||[]).length} people&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="amount-right"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="amount-big"&gt;${fmt(e.amount)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="amount-small"&gt;${state.currency}${share}/each&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;`;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Add Expense ────────────────────────────────────────</p>
+<p class="p1">function renderAddForm() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const pb = document.getElementById('e-paidby');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>pb.innerHTML = allMembers().map(m=&gt;`&lt;option&gt;${m}&lt;/option&gt;`).join('');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>selectedMembers = allMembers().slice();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const mc = document.getElementById('e-members');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mc.innerHTML = allMembers().map(m =&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>`&lt;div class="chip selected" onclick="toggleMember(this,'${m}')"&gt;${initials(m)} ${m}&lt;/div&gt;`</p>
+<p class="p1"><span class="Apple-converted-space">  </span>).join('');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const di = document.getElementById('e-date');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!di.value) di.value = today();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function toggleMember(el, name) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>el.classList.toggle('selected');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (el.classList.contains('selected')) selectedMembers.push(name);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>else selectedMembers = selectedMembers.filter(m =&gt; m !== name);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function setSplit(type) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>splitType = type;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('so-equal').classList.toggle('selected', type==='equal');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('so-payer').classList.toggle('selected', type==='payer');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function addExpense() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const desc = document.getElementById('e-desc').value.trim();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const amount = parseFloat(document.getElementById('e-amount').value);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const cat = document.getElementById('e-cat').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const paidBy = document.getElementById('e-paidby').value;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const date = document.getElementById('e-date').value || today();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const notes = document.getElementById('e-notes').value.trim();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!desc) { toast('⚠️ Please enter a description'); return; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!amount || amount &lt;= 0) { toast('⚠️ Please enter a valid amount'); return; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!selectedMembers.length) { toast('⚠️ Select at least one person'); return; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>state.expenses.push({ id: state.nextId++, desc, amount, paidBy, cat, members: selectedMembers.slice(), splitType, date, notes });</p>
+<p class="p1"><span class="Apple-converted-space">  </span>save();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('e-desc').value = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('e-amount').value = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('e-notes').value = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>toast('✅ Expense added!');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>switchTab('dashboard');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Friends ────────────────────────────────────────────</p>
+<p class="p1">function addFriend() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const inp = document.getElementById('f-name');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const name = inp.value.trim();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!name) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (state.friends.includes(name) || name === 'You') { toast('⚠️ Already in your group'); return; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>state.friends.push(name);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inp.value = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>save();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderFriends();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>toast('👋 ' + name + ' added!');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function removeFriend(name) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!confirm('Remove ' + name + '? Their expenses will remain.')) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>state.friends = state.friends.filter(f =&gt; f !== name);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>save();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderFriends();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderDashboard();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderFriends() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const fl = document.getElementById('friends-list');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!state.friends.length) { fl.innerHTML = '&lt;div class="empty"&gt;&lt;i class="ti ti-user-plus"&gt;&lt;/i&gt;No friends yet. Add one above!&lt;/div&gt;'; return; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const bal = computeBalances();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>fl.innerHTML = ['You', ...state.friends].map(f =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const b = bal[f] || 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const cls = b &gt; 0 ? 'green' : b &lt; 0 ? 'red' : '';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const label = b &gt; 0 ? 'gets back ' + fmt(b) : b &lt; 0 ? 'owes ' + fmt(b) : 'settled';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const del = f !== 'You' ? `&lt;button class="btn sm danger" onclick="removeFriend('${f}')"&gt;&lt;i class="ti ti-trash"&gt;&lt;/i&gt;&lt;/button&gt;` : '';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return `&lt;div class="list-item"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="avatar" style="${avatarStyle(f)}"&gt;${initials(f)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="list-info"&gt;&lt;div class="list-name"&gt;${f}${f==='You'?' (you)':''}&lt;/div&gt;&lt;div class="list-sub"&gt;${label}&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>${del}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}).join('');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Settle ─────────────────────────────────────────────</p>
+<p class="p1">function renderSettle() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const bal = computeBalances();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const owers = Object.entries(bal).filter(([,v])=&gt;v&lt;0).map(([k,v])=&gt;({name:k,amount:-v}));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const oweds = Object.entries(bal).filter(([,v])=&gt;v&gt;0).map(([k,v])=&gt;({name:k,amount:v}));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const sl = document.getElementById('settle-list');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!owers.length) { sl.innerHTML = '&lt;div class="empty"&gt;&lt;i class="ti ti-circle-check"&gt;&lt;/i&gt;Everyone is settled up! 🎉&lt;/div&gt;'; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>else {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const settlements = [];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const o1 = owers.map(x=&gt;({...x})), o2 = oweds.map(x=&gt;({...x}));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>while (o1.length &amp;&amp; o2.length) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const a = o1[0], b = o2[0];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const amt = Math.min(a.amount, b.amount);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>settlements.push({ from: a.name, to: b.name, amount: amt });</p>
+<p class="p1"><span class="Apple-converted-space">      </span>a.amount -= amt; b.amount -= amt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (a.amount &lt; 0.01) o1.shift();</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (b.amount &lt; 0.01) o2.shift();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>sl.innerHTML = settlements.map(s =&gt; `&lt;div class="settle-row"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="avatar sm" style="${avatarStyle(s.from)}"&gt;${initials(s.from)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div style="flex:1;font-size:13px"&gt;&lt;b&gt;${s.from}&lt;/b&gt; pays &lt;b&gt;${s.to}&lt;/b&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="settle-amt"&gt;${fmt(s.amount)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="avatar sm" style="${avatarStyle(s.to)}"&gt;${initials(s.to)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;`).join('');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>const ps = document.getElementById('person-summary');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ps.innerHTML = allMembers().map(m =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const paid = state.expenses.filter(e=&gt;e.paidBy===m).reduce((s,e)=&gt;s+e.amount,0);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const share = state.expenses.filter(e=&gt;(e.members||[]).includes(m)).reduce((s,e)=&gt;s+e.amount/(e.members||[m]).length,0);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const net = bal[m] || 0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const cls = net &gt;= 0 ? 'green-text' : 'red-text';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const sign = net &gt;= 0 ? '+' : '-';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return `&lt;div class="list-item"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="avatar" style="${avatarStyle(m)}"&gt;${initials(m)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="list-info"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="list-name"&gt;${m}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="list-sub"&gt;Paid ${fmt(paid)} · Share ${fmt(share)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="amount-right"&gt;&lt;div class="amount-big ${cls}"&gt;${sign}${fmt(net)}&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}).join('');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── History ────────────────────────────────────────────</p>
+<p class="p1">function renderHistory() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const hl = document.getElementById('history-list');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!state.expenses.length) { hl.innerHTML = '&lt;div class="empty"&gt;&lt;i class="ti ti-history"&gt;&lt;/i&gt;No expenses yet&lt;/div&gt;'; return; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const sorted = state.expenses.slice().sort((a,b)=&gt;(b.date||'').localeCompare(a.date||''));</p>
+<p class="p1"><span class="Apple-converted-space">  </span>let lastDate = '', html = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sorted.forEach(e =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (e.date !== lastDate) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>html += `&lt;div class="section-heading"&gt;${fmtDate(e.date)}&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>lastDate = e.date;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += expenseRow(e);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>});</p>
+<p class="p1"><span class="Apple-converted-space">  </span>hl.innerHTML = html;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function clearAll() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!confirm('Delete all expenses? This cannot be undone.')) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>state.expenses = [];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>state.nextId = 1;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>save();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderAll();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>toast('🗑️ All expenses cleared');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Detail Modal ───────────────────────────────────────</p>
+<p class="p1">function openDetail(id) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const e = state.expenses.find(x=&gt;x.id===id);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!e) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const share = (e.amount / (e.members||[]).length).toFixed(2);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('modal-content').innerHTML = `</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div style="font-size:40px"&gt;${e.cat}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div&gt;&lt;div class="modal-title" style="margin-bottom:2px"&gt;${e.desc}&lt;/div&gt;&lt;div style="font-size:13px;color:var(--text-secondary)"&gt;${fmtDate(e.date)}&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="summary-grid" style="margin-bottom:1rem"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="stat"&gt;&lt;div class="stat-label"&gt;Total&lt;/div&gt;&lt;div class="stat-value"&gt;${fmt(e.amount)}&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="stat"&gt;&lt;div class="stat-label"&gt;Per person&lt;/div&gt;&lt;div class="stat-value"&gt;${state.currency}${share}&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="stat"&gt;&lt;div class="stat-label"&gt;People&lt;/div&gt;&lt;div class="stat-value"&gt;${(e.members||[]).length}&lt;/div&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px"&gt;Paid by&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="avatar sm" style="${avatarStyle(e.paidBy)}"&gt;${initials(e.paidBy)}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span style="font-weight:500"&gt;${e.paidBy}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px"&gt;Split between&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="chips" style="margin-bottom:1rem"&gt;${(e.members||[]).map(m=&gt;`&lt;div class="chip selected"&gt;${initials(m)} ${m}&lt;/div&gt;`).join('')}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>${e.notes?`&lt;div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px"&gt;Notes&lt;/div&gt;&lt;div style="font-size:14px;padding:10px;background:var(--bg-secondary);border-radius:var(--radius)"&gt;${e.notes}&lt;/div&gt;`:''}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div style="display:flex;gap:8px;margin-top:1.2rem"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="btn danger" style="flex:1;justify-content:center" onclick="deleteExpense(${e.id})"&gt;&lt;i class="ti ti-trash"&gt;&lt;/i&gt; Delete&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button class="btn" style="flex:1;justify-content:center" onclick="closeModal()"&gt;&lt;i class="ti ti-x"&gt;&lt;/i&gt; Close&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('detail-modal').classList.add('open');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function closeModal() { document.getElementById('detail-modal').classList.remove('open'); }</p>
+<p class="p2"><br></p>
+<p class="p1">function deleteExpense(id) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!confirm('Delete this expense?')) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>state.expenses = state.expenses.filter(e=&gt;e.id!==id);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>save();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>closeModal();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderAll();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>toast('🗑️ Expense deleted');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Init ───────────────────────────────────────────────</p>
+<p class="p1">load();</p>
+<p class="p1">renderDashboard();</p>
+<p class="p1">renderFriends();</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
