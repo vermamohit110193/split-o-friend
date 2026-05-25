@@ -418,7 +418,11 @@ function switchTab(t) {
   if(t==='history') renderHistory();
 }
 function renderAll() {
-  renderDashboard(); renderFriends(); renderSettle(); renderHistory();
+  renderDashboard();
+  renderFriends();
+  renderSettle();
+  renderHistory();
+  renderAddForm();
 }
 
 // ── Dashboard ──────────────────────────────────────────
@@ -517,12 +521,24 @@ function addExpense() {
 function addFriend() {
   const inp = document.getElementById('f-name');
   const name = inp.value.trim();
+
   if (!name) return;
-  if (state.friends.includes(name) || name === 'You') { toast('⚠️ Already in your group'); return; }
+
+  const normalizedName = name.toLowerCase();
+
+  const alreadyExists = allMembers().some(
+    m => m.toLowerCase() === normalizedName
+  );
+
+  if (alreadyExists) {
+    toast('⚠️ Already in your group');
+    return;
+  }
+
   state.friends.push(name);
   inp.value = '';
   save();
-  renderFriends();
+  renderAll();
   toast('👋 ' + name + ' added!');
 }
 
