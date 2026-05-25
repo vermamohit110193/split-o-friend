@@ -69,6 +69,7 @@
   <div class="topbar-right">
     <select class="trip-sel" id="trip-sel" onchange="switchTrip(this.value)"></select>
     <button class="icon-btn" onclick="createTrip()"><i class="ti ti-plus"></i> Trip</button>
+    <button class="icon-btn" onclick="changeProfile()"><i class="ti ti-user-circle"></i> <span id="profile-label">Profile</span></button>
     <select class="currency-sel" id="currency-sel" onchange="setCurrency(this.value)"><option value="£">£ GBP</option><option value="$">$ USD</option><option value="€">€ EUR</option><option value="₹">₹ INR</option><option value="¥">¥ JPY</option><option value="A$">A$ AUD</option><option value="C$">C$ CAD</option></select>
     <button class="icon-btn" onclick="toggleTheme()" id="theme-btn"><i class="ti ti-moon"></i></button>
   </div>
@@ -115,62 +116,390 @@ const appRef = db.ref("splitofriend/liveState");
 </script>
 <script>
 const defaultTripId = 'trip_' + Date.now();
-let state = { activeTripId: defaultTripId, currency:'£', theme:'light', trips:{ [defaultTripId]: { id:defaultTripId, name:'Default Trip', friends:['Alice','Bob','Charlie'], expenses:[ {id:1,desc:'Dinner',amount:60,paidBy:'You',cat:'🍽️',members:['You','Alice','Bob'],splitType:'equal',date:'2026-05-25',notes:'',createdAt:1}, {id:2,desc:'Uber home',amount:18,paidBy:'Alice',cat:'🚗',members:['You','Alice'],splitType:'equal',date:'2026-05-24',notes:'',createdAt:2}, {id:3,desc:'Groceries',amount:45,paidBy:'Bob',cat:'🛒',members:['You','Alice','Bob','Charlie'],splitType:'equal',date:'2026-05-23',notes:'Split evenly',createdAt:3}, {id:4,desc:'Cinema tickets',amount:32,paidBy:'You',cat:'🎉',members:['You','Charlie'],splitType:'equal',date:'2026-05-22',notes:'',createdAt:4} ], nextId:5, createdAt:Date.now() } } };
+const PROFILE_KEY = 'splitofriend_profileName';
+let currentUserName = '';
+let state = {
+  activeTripId: defaultTripId,
+  currency:'£',
+  theme:'light',
+  trips:{
+    [defaultTripId]: {
+      id:defaultTripId,
+      name:'Default Trip',
+      friends:['Alice','Bob','Charlie'],
+      expenses:[
+        {id:1,desc:'Dinner',amount:60,paidBy:'You',cat:'🍽️',members:['You','Alice','Bob'],splitType:'equal',date:'2026-05-25',notes:'',createdAt:1},
+        {id:2,desc:'Uber home',amount:18,paidBy:'Alice',cat:'🚗',members:['You','Alice'],splitType:'equal',date:'2026-05-24',notes:'',createdAt:2},
+        {id:3,desc:'Groceries',amount:45,paidBy:'Bob',cat:'🛒',members:['You','Alice','Bob','Charlie'],splitType:'equal',date:'2026-05-23',notes:'Split evenly',createdAt:3},
+        {id:4,desc:'Cinema tickets',amount:32,paidBy:'You',cat:'🎉',members:['You','Charlie'],splitType:'equal',date:'2026-05-22',notes:'',createdAt:4}
+      ],
+      nextId:5,
+      createdAt:Date.now()
+    }
+  }
+};
 let splitType = 'equal';
 let selectedMembers = [];
 let editingExpenseId = null;
 let activeTab = 'dashboard';
 
-function normalizeTrip(t, fallbackId, fallbackName) { return { id: t?.id || fallbackId, name: t?.name || fallbackName || 'Trip', friends: Array.isArray(t?.friends) ? t.friends : [], expenses: Array.isArray(t?.expenses) ? t.expenses.map((e,i)=>({ ...e, id:e.id ?? i+1, amount:Number(e.amount)||0, members:Array.isArray(e.members)?e.members:[], createdAt:e.createdAt || Date.now()+i })) : [], nextId: Number(t?.nextId) || ((Array.isArray(t?.expenses)?t.expenses.length:0)+1), createdAt: t?.createdAt || Date.now() }; }
+function escapeHtml(s){ return String(s ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+function jsArg(s){ return JSON.stringify(String(s ?? '')); }
+
+function ensureProfile() {
+  let saved = (localStorage.getItem(PROFILE_KEY) || '').trim();
+  while (!saved) {
+    saved = (prompt('Enter your name for this device:', 'Mohit') || '').trim();
+    if (!saved) alert('Name is required so expenses can be saved under your profile.');
+  }
+  currentUserName = saved;
+  localStorage.setItem(PROFILE_KEY, currentUserName);
+  updateProfileLabel();
+}
+
+function changeProfile() {
+  const name = (prompt('Update your profile name:', currentUserName || 'Your Name') || '').trim();
+  if (!name) return;
+  currentUserName = name;
+  localStorage.setItem(PROFILE_KEY, currentUserName);
+  selectedMembers = [];
+  updateProfileLabel();
+  renderAll();
+  toast('✅ Profile set to ' + currentUserName);
+}
+
+function updateProfileLabel() {
+  const el = document.getElementById('profile-label');
+  if (el) el.textContent = currentUserName || 'Profile';
+}
+
+function displayName(name) {
+  return String(name || '').trim() === 'You' ? (currentUserName || 'You') : String(name || '').trim();
+}
+
+function addUnique(list, value) {
+  const name = displayName(value);
+  if (!name) return;
+  if (!list.some(x => x.toLowerCase() === name.toLowerCase())) list.push(name);
+}
+
+function normalizeTrip(t, fallbackId, fallbackName) {
+  return {
+    id: t?.id || fallbackId,
+    name: t?.name || fallbackName || 'Trip',
+    friends: Array.isArray(t?.friends) ? t.friends.map(displayName).filter(Boolean) : [],
+    expenses: Array.isArray(t?.expenses) ? t.expenses.map((e,i)=>({
+      ...e,
+      id:e.id ?? i+1,
+      amount:Number(e.amount)||0,
+      paidBy: displayName(e.paidBy),
+      members:Array.isArray(e.members) ? e.members.map(displayName).filter(Boolean) : [],
+      createdAt:e.createdAt || Date.now()+i
+    })) : [],
+    nextId: Number(t?.nextId) || ((Array.isArray(t?.expenses)?t.expenses.length:0)+1),
+    createdAt: t?.createdAt || Date.now()
+  };
+}
+
 function normalizeState(data) {
   const base = { activeTripId: defaultTripId, currency:'£', theme:'light', trips:{} };
   if (!data) return state;
   if (data.trips && typeof data.trips === 'object') {
-    base.currency = data.currency || '£'; base.theme = data.theme || 'light';
+    base.currency = data.currency || '£';
+    base.theme = data.theme || 'light';
     Object.keys(data.trips).forEach(id => base.trips[id] = normalizeTrip(data.trips[id], id));
-    const ids = Object.keys(base.trips); base.activeTripId = base.trips[data.activeTripId] ? data.activeTripId : ids[0];
+    const ids = Object.keys(base.trips);
+    base.activeTripId = base.trips[data.activeTripId] ? data.activeTripId : ids[0];
     return base;
   }
   const id = defaultTripId;
-  base.currency = data.currency || '£'; base.theme = data.theme || 'light'; base.activeTripId = id;
+  base.currency = data.currency || '£';
+  base.theme = data.theme || 'light';
+  base.activeTripId = id;
   base.trips[id] = normalizeTrip({ id, name:'Default Trip', friends:data.friends, expenses:data.expenses, nextId:data.nextId }, id, 'Default Trip');
   return base;
 }
-function currentTrip() { let t = state.trips?.[state.activeTripId]; if (!t) { const ids = Object.keys(state.trips || {}); if (ids.length) { state.activeTripId = ids[0]; t = state.trips[ids[0]]; } } return t; }
-function allMembers() { return ['You', ...(currentTrip()?.friends || [])]; }
-function save() { localStorage.setItem('splitofriend', JSON.stringify(state)); renderAll(); appRef.set(JSON.parse(JSON.stringify(state))).then(()=>console.log('✅ Saved')).catch(e=>{ console.error(e); toast('⚠️ Firebase save failed: '+e.message); }); }
-function load() { const d = localStorage.getItem('splitofriend'); if (d) { try { state = normalizeState(JSON.parse(d)); } catch(e){ console.error(e); } } applyStateToUI(); renderAll(); appRef.on('value', snap => { if (snap.exists()) { state = normalizeState(snap.val()); localStorage.setItem('splitofriend', JSON.stringify(state)); applyStateToUI(); renderAll(); } else { save(); } }, e => toast('⚠️ Firebase connection failed: '+e.message)); }
-function applyStateToUI() { document.documentElement.dataset.theme = state.theme || 'light'; const c=document.getElementById('currency-sel'); if(c)c.value=state.currency||'£'; updateThemeIcon(); renderTripSelector(); }
-function renderTripSelector() { const sel=document.getElementById('trip-sel'); if(!sel)return; const trips=Object.values(state.trips||{}).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)); sel.innerHTML = trips.map(t=>`<option value="${escapeHtml(t.id)}">${escapeHtml(t.name)}</option>`).join(''); sel.value = state.activeTripId; }
-function createTrip() { const name = prompt('Enter new trip name:', 'New Trip'); if (!name || !name.trim()) return; const id = 'trip_' + Date.now(); state.trips[id] = { id, name:name.trim(), friends:[], expenses:[], nextId:1, createdAt:Date.now() }; state.activeTripId = id; cancelEdit(false); save(); switchTab('friends'); toast('✅ Trip created'); }
-function switchTrip(id) { if (!state.trips[id]) return; state.activeTripId = id; cancelEdit(false); save(); toast('Switched to '+state.trips[id].name); }
-function escapeHtml(s){ return String(s ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+
+function currentTrip() {
+  let t = state.trips?.[state.activeTripId];
+  if (!t) {
+    const ids = Object.keys(state.trips || {});
+    if (ids.length) { state.activeTripId = ids[0]; t = state.trips[ids[0]]; }
+  }
+  return t;
+}
+
+function allMembers() {
+  const t = currentTrip();
+  const members = [];
+  addUnique(members, currentUserName);
+  (t?.friends || []).forEach(m => addUnique(members, m));
+  (t?.expenses || []).forEach(e => {
+    addUnique(members, e.paidBy);
+    (e.members || []).forEach(m => addUnique(members, m));
+  });
+  return members;
+}
+
+function save() {
+  localStorage.setItem('splitofriend', JSON.stringify(state));
+  renderAll();
+  appRef.set(JSON.parse(JSON.stringify(state)))
+    .then(()=>console.log('✅ Saved'))
+    .catch(e=>{ console.error(e); toast('⚠️ Firebase save failed: '+e.message); });
+}
+
+function load() {
+  const d = localStorage.getItem('splitofriend');
+  if (d) { try { state = normalizeState(JSON.parse(d)); } catch(e){ console.error(e); } }
+  applyStateToUI();
+  renderAll();
+  appRef.on('value', snap => {
+    if (snap.exists()) {
+      state = normalizeState(snap.val());
+      localStorage.setItem('splitofriend', JSON.stringify(state));
+      applyStateToUI();
+      renderAll();
+    } else {
+      save();
+    }
+  }, e => toast('⚠️ Firebase connection failed: '+e.message));
+}
+
+function applyStateToUI() {
+  document.documentElement.dataset.theme = state.theme || 'light';
+  const c=document.getElementById('currency-sel');
+  if(c)c.value=state.currency||'£';
+  updateThemeIcon();
+  updateProfileLabel();
+  renderTripSelector();
+}
+
+function renderTripSelector() {
+  const sel=document.getElementById('trip-sel');
+  if(!sel)return;
+  const trips=Object.values(state.trips||{}).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  sel.innerHTML = trips.map(t=>`<option value="${escapeHtml(t.id)}">${escapeHtml(t.name)}</option>`).join('');
+  sel.value = state.activeTripId;
+}
+
+function createTrip() {
+  const name = prompt('Enter new trip name:', 'New Trip');
+  if (!name || !name.trim()) return;
+  const id = 'trip_' + Date.now();
+  state.trips[id] = { id, name:name.trim(), friends:[], expenses:[], nextId:1, createdAt:Date.now() };
+  state.activeTripId = id;
+  selectedMembers = [];
+  cancelEdit(false);
+  save();
+  switchTab('friends');
+  toast('✅ Trip created');
+}
+
+function switchTrip(id) {
+  if (!state.trips[id]) return;
+  state.activeTripId = id;
+  selectedMembers = [];
+  cancelEdit(false);
+  save();
+  toast('Switched to '+state.trips[id].name);
+}
+
 const colors=[['#E1F5EE','#0F6E56'],['#E6F1FB','#185FA5'],['#FAEEDA','#854F0B'],['#FBEAF0','#993556'],['#EEEDFE','#534AB7'],['#EAF3DE','#3B6D11']];
-function avatarStyle(name){const n=String(name||'?'); const i=(n.charCodeAt(0)+(n.charCodeAt(1)||0))%colors.length; return `background:${colors[i][0]};color:${colors[i][1]}`;}
-function initials(name){return String(name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);} function fmt(n){return (state.currency||'£')+Math.abs(Number(n)||0).toFixed(2);} function today(){return new Date().toISOString().slice(0,10);} function fmtDate(d){if(!d)return''; const t=today(), y=new Date(); y.setDate(y.getDate()-1); const yy=y.toISOString().slice(0,10); if(d===t)return'Today'; if(d===yy)return'Yesterday'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});} function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000);}
-function computeBalances(){const t=currentTrip(); const bal={}; allMembers().forEach(m=>bal[m]=0); (t.expenses||[]).forEach(e=>{ if(!e.members?.length)return; const share=e.amount/e.members.length; e.members.forEach(m=>{ if(m!==e.paidBy) bal[m]=(bal[m]||0)-share; }); bal[e.paidBy]=(bal[e.paidBy]||0)+(e.members.filter(m=>m!==e.paidBy).length*share); }); return bal; }
-function toggleTheme(){state.theme=state.theme==='light'?'dark':'light'; applyStateToUI(); save();} function updateThemeIcon(){const b=document.getElementById('theme-btn'); if(b)b.innerHTML=state.theme==='dark'?'<i class="ti ti-sun"></i>':'<i class="ti ti-moon"></i>';} function setCurrency(c){state.currency=c; save();}
+function avatarStyle(name){const n=String(displayName(name)||'?'); const i=(n.charCodeAt(0)+(n.charCodeAt(1)||0))%colors.length; return `background:${colors[i][0]};color:${colors[i][1]}`;}
+function initials(name){return String(displayName(name)||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+function fmt(n){return (state.currency||'£')+Math.abs(Number(n)||0).toFixed(2);}
+function today(){return new Date().toISOString().slice(0,10);}
+function fmtDate(d){if(!d)return''; const t=today(), y=new Date(); y.setDate(y.getDate()-1); const yy=y.toISOString().slice(0,10); if(d===t)return'Today'; if(d===yy)return'Yesterday'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000);}
+
+function computeBalances(){
+  const t=currentTrip();
+  const bal={};
+  allMembers().forEach(m=>bal[m]=0);
+  (t.expenses||[]).forEach(e=>{
+    const paidBy = displayName(e.paidBy);
+    const members = (e.members || []).map(displayName).filter(Boolean);
+    if(!members.length)return;
+    const share=Number(e.amount||0)/members.length;
+    members.forEach(m=>{ if(m!==paidBy) bal[m]=(bal[m]||0)-share; });
+    bal[paidBy]=(bal[paidBy]||0)+(members.filter(m=>m!==paidBy).length*share);
+  });
+  return bal;
+}
+
+function toggleTheme(){state.theme=state.theme==='light'?'dark':'light'; applyStateToUI(); save();}
+function updateThemeIcon(){const b=document.getElementById('theme-btn'); if(b)b.innerHTML=state.theme==='dark'?'<i class="ti ti-sun"></i>':'<i class="ti ti-moon"></i>';}
+function setCurrency(c){state.currency=c; save();}
 function switchTab(t){activeTab=t; ['dashboard','add','friends','settle','history'].forEach(id=>{document.getElementById('tab-'+id).classList.toggle('active',id===t); document.getElementById('t-'+id).classList.toggle('active',id===t);}); renderAll();}
 function renderAll(){renderTripSelector(); renderDashboard(); renderFriends(); renderSettle(); renderHistory(); if(activeTab==='add') renderAddForm();}
 function latestExpenses(){return (currentTrip()?.expenses||[]).slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0) || (b.date||'').localeCompare(a.date||'') || (b.id||0)-(a.id||0));}
-function renderDashboard(){const t=currentTrip(); const bal=computeBalances(); document.getElementById('s-total').textContent=fmt((t.expenses||[]).reduce((s,e)=>s+Number(e.amount||0),0)); document.getElementById('s-owed').textContent=fmt(Math.max(0,bal.You||0)); document.getElementById('s-owe').textContent=fmt(Math.max(0,-(bal.You||0))); const bl=document.getElementById('d-balances'); if(!t.friends.length) bl.innerHTML='<div class="empty"><i class="ti ti-users"></i>Add friends to see balances</div>'; else bl.innerHTML=t.friends.map(f=>{const b=bal[f]||0, cls=b>0?'green-text':b<0?'red-text':'', label=b>0?'owes you':b<0?'you owe':'settled up', sign=b>0?'+':b<0?'-':''; return `<div class="list-item"><div class="avatar" style="${avatarStyle(f)}">${initials(f)}</div><div class="list-info"><div class="list-name">${escapeHtml(f)}</div><div class="list-sub">${label}</div></div><div class="amount-right"><div class="amount-big ${cls}">${sign}${fmt(b)}</div></div></div>`;}).join(''); const el=document.getElementById('d-expenses'); const recent=latestExpenses().slice(0,4); el.innerHTML = recent.length ? recent.map(expenseRow).join('') : '<div class="empty"><i class="ti ti-receipt"></i>No expenses yet</div>';}
-function expenseRow(e){const count=e.members?.length||1; return `<div class="list-item" onclick="openDetail(${e.id})" style="cursor:pointer"><div class="cat-icon">${e.cat||'📦'}</div><div class="list-info"><div class="list-name">${escapeHtml(e.desc)}</div><div class="list-sub">Paid by ${escapeHtml(e.paidBy)} · ${fmtDate(e.date)} · ${count} people</div></div><div class="amount-right"><div class="amount-big">${fmt(e.amount)}</div><div class="amount-small">${state.currency}${(Number(e.amount||0)/count).toFixed(2)}/each</div></div></div>`;}
-function renderAddForm(){const pb=document.getElementById('e-paidby'); pb.innerHTML=allMembers().map(m=>`<option>${escapeHtml(m)}</option>`).join(''); const mc=document.getElementById('e-members'); if(!editingExpenseId && selectedMembers.length===0) selectedMembers=allMembers().slice(); mc.innerHTML=allMembers().map(m=>`<div class="chip ${selectedMembers.includes(m)?'selected':''}" onclick="toggleMember(this,'${escapeHtml(m)}')">${initials(m)} ${escapeHtml(m)}</div>`).join(''); const di=document.getElementById('e-date'); if(!di.value) di.value=today(); document.getElementById('expense-form-title').textContent=editingExpenseId?'Edit expense':'New expense'; document.getElementById('expense-submit-btn').innerHTML=editingExpenseId?'<i class="ti ti-device-floppy"></i> Save changes':'<i class="ti ti-plus"></i> Add expense'; document.getElementById('cancel-edit-btn').style.display=editingExpenseId?'inline-flex':'none'; setSplit(splitType);}
+
+function renderDashboard(){
+  const t=currentTrip();
+  const bal=computeBalances();
+  const me=currentUserName;
+  document.getElementById('s-total').textContent=fmt((t.expenses||[]).reduce((s,e)=>s+Number(e.amount||0),0));
+  document.getElementById('s-owed').textContent=fmt(Math.max(0,bal[me]||0));
+  document.getElementById('s-owe').textContent=fmt(Math.max(0,-(bal[me]||0)));
+  const bl=document.getElementById('d-balances');
+  const others=allMembers().filter(m=>m.toLowerCase()!==me.toLowerCase());
+  if(!others.length) bl.innerHTML='<div class="empty"><i class="ti ti-users"></i>Add friends to see balances</div>';
+  else bl.innerHTML=others.map(f=>{const b=bal[f]||0, cls=b>0?'green-text':b<0?'red-text':'', label=b>0?'owes you':b<0?'you owe':'settled up', sign=b>0?'+':b<0?'-':''; return `<div class="list-item"><div class="avatar" style="${avatarStyle(f)}">${initials(f)}</div><div class="list-info"><div class="list-name">${escapeHtml(f)}</div><div class="list-sub">${label}</div></div><div class="amount-right"><div class="amount-big ${cls}">${sign}${fmt(b)}</div></div></div>`;}).join('');
+  const el=document.getElementById('d-expenses');
+  const recent=latestExpenses().slice(0,4);
+  el.innerHTML = recent.length ? recent.map(expenseRow).join('') : '<div class="empty"><i class="ti ti-receipt"></i>No expenses yet</div>';
+}
+
+function expenseRow(e){
+  const members=(e.members||[]).map(displayName);
+  const count=members.length||1;
+  const paidBy=displayName(e.paidBy);
+  return `<div class="list-item" onclick="openDetail(${e.id})" style="cursor:pointer"><div class="cat-icon">${e.cat||'📦'}</div><div class="list-info"><div class="list-name">${escapeHtml(e.desc)}</div><div class="list-sub">Paid by ${escapeHtml(paidBy)} · ${fmtDate(e.date)} · ${count} people</div></div><div class="amount-right"><div class="amount-big">${fmt(e.amount)}</div><div class="amount-small">${state.currency}${(Number(e.amount||0)/count).toFixed(2)}/each</div></div></div>`;
+}
+
+function renderAddForm(){
+  const pb=document.getElementById('e-paidby');
+  const members=allMembers();
+  pb.innerHTML=members.map(m=>`<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+  if(!editingExpenseId && selectedMembers.length===0) selectedMembers=members.slice();
+  const mc=document.getElementById('e-members');
+  mc.innerHTML=members.map(m=>`<div class="chip ${selectedMembers.includes(m)?'selected':''}" onclick="toggleMember(this,${jsArg(m)})">${initials(m)} ${escapeHtml(m)}</div>`).join('');
+  const di=document.getElementById('e-date');
+  if(!di.value) di.value=today();
+  document.getElementById('expense-form-title').textContent=editingExpenseId?'Edit expense':'New expense';
+  document.getElementById('expense-submit-btn').innerHTML=editingExpenseId?'<i class="ti ti-device-floppy"></i> Save changes':'<i class="ti ti-plus"></i> Add expense';
+  document.getElementById('cancel-edit-btn').style.display=editingExpenseId?'inline-flex':'none';
+  setSplit(splitType);
+}
+
 function toggleMember(el,name){el.classList.toggle('selected'); selectedMembers=el.classList.contains('selected') ? [...new Set([...selectedMembers,name])] : selectedMembers.filter(m=>m!==name);}
 function setSplit(type){splitType=type; document.getElementById('so-equal')?.classList.toggle('selected',type==='equal'); document.getElementById('so-payer')?.classList.toggle('selected',type==='payer');}
-function submitExpense(){const t=currentTrip(); const desc=document.getElementById('e-desc').value.trim(); const amount=parseFloat(document.getElementById('e-amount').value); const cat=document.getElementById('e-cat').value; const paidBy=document.getElementById('e-paidby').value; const date=document.getElementById('e-date').value||today(); const notes=document.getElementById('e-notes').value.trim(); if(!desc)return toast('⚠️ Please enter a description'); if(!amount||amount<=0)return toast('⚠️ Please enter a valid amount'); if(!selectedMembers.length)return toast('⚠️ Select at least one person'); const payload={desc,amount,paidBy,cat,members:selectedMembers.slice(),splitType,date,notes}; if(editingExpenseId){const idx=t.expenses.findIndex(e=>e.id===editingExpenseId); if(idx>-1)t.expenses[idx]={...t.expenses[idx],...payload,updatedAt:Date.now()}; toast('✅ Expense updated');} else {t.expenses.push({id:t.nextId++, ...payload, createdAt:Date.now()}); toast('✅ Expense added');} clearExpenseForm(); save(); switchTab('dashboard');}
+
+function submitExpense(){
+  const t=currentTrip();
+  const desc=document.getElementById('e-desc').value.trim();
+  const amount=parseFloat(document.getElementById('e-amount').value);
+  const cat=document.getElementById('e-cat').value;
+  const paidBy=document.getElementById('e-paidby').value;
+  const date=document.getElementById('e-date').value||today();
+  const notes=document.getElementById('e-notes').value.trim();
+  if(!desc)return toast('⚠️ Please enter a description');
+  if(!amount||amount<=0)return toast('⚠️ Please enter a valid amount');
+  if(!selectedMembers.length)return toast('⚠️ Select at least one person');
+  const payload={desc,amount,paidBy,cat,members:selectedMembers.slice(),splitType,date,notes};
+  if(editingExpenseId){
+    const idx=t.expenses.findIndex(e=>e.id===editingExpenseId);
+    if(idx>-1)t.expenses[idx]={...t.expenses[idx],...payload,updatedAt:Date.now()};
+    toast('✅ Expense updated');
+  } else {
+    t.expenses.push({id:t.nextId++, ...payload, createdAt:Date.now()});
+    toast('✅ Expense added');
+  }
+  clearExpenseForm();
+  save();
+  switchTab('dashboard');
+}
+
 function clearExpenseForm(){editingExpenseId=null; ['e-desc','e-amount','e-notes'].forEach(id=>document.getElementById(id).value=''); document.getElementById('e-date').value=today(); splitType='equal'; selectedMembers=[];}
 function cancelEdit(showToast=true){clearExpenseForm(); if(activeTab==='add')renderAddForm(); if(showToast)toast('Edit cancelled');}
-function editExpense(id){const e=currentTrip().expenses.find(x=>x.id===id); if(!e)return; closeModal(); editingExpenseId=id; document.getElementById('e-desc').value=e.desc||''; document.getElementById('e-amount').value=e.amount||''; document.getElementById('e-cat').value=e.cat||'📦'; document.getElementById('e-paidby').value=e.paidBy||'You'; document.getElementById('e-date').value=e.date||today(); document.getElementById('e-notes').value=e.notes||''; selectedMembers=(e.members||[]).slice(); splitType=e.splitType||'equal'; switchTab('add'); renderAddForm();}
-function addFriend(){const t=currentTrip(); const inp=document.getElementById('f-name'); const name=inp.value.trim(); if(!name)return; if(allMembers().some(m=>m.toLowerCase()===name.toLowerCase()))return toast('⚠️ Already in your group'); t.friends.push(name); inp.value=''; save(); toast('👋 '+name+' added');}
-function removeFriend(name){if(!confirm('Remove '+name+' from this trip? Their existing expenses will remain.'))return; const t=currentTrip(); t.friends=t.friends.filter(f=>f!==name); save();}
-function renderFriends(){const t=currentTrip(); const fl=document.getElementById('friends-list'); if(!t.friends.length){fl.innerHTML='<div class="empty"><i class="ti ti-user-plus"></i>No friends yet. Add one above!</div>';return;} const bal=computeBalances(); fl.innerHTML=['You',...t.friends].map(f=>{const b=bal[f]||0, cls=b>=0?'green-text':'red-text', sign=b>=0?'+':'-', del=f!=='You'?`<button class="btn sm danger" onclick="removeFriend('${escapeHtml(f)}')"><i class="ti ti-trash"></i></button>`:''; return `<div class="list-item"><div class="avatar" style="${avatarStyle(f)}">${initials(f)}</div><div class="list-info"><div class="list-name">${escapeHtml(f)}${f==='You'?' (you)':''}</div><div class="list-sub">${b===0?'settled':(b>0?'gets back ':'owes ')+fmt(b)}</div></div><div class="amount-big ${cls}">${sign}${fmt(b)}</div>${del}</div>`;}).join('');}
-function renderSettle(){const bal=computeBalances(); const owers=Object.entries(bal).filter(([,v])=>v<0).map(([name,v])=>({name,amount:-v})); const oweds=Object.entries(bal).filter(([,v])=>v>0).map(([name,v])=>({name,amount:v})); const sl=document.getElementById('settle-list'); if(!owers.length){sl.innerHTML='<div class="empty"><i class="ti ti-circle-check"></i>Everyone is settled up! 🎉</div>';} else {const rows=[], a=owers.map(x=>({...x})), b=oweds.map(x=>({...x})); while(a.length&&b.length){const amt=Math.min(a[0].amount,b[0].amount); rows.push({from:a[0].name,to:b[0].name,amount:amt}); a[0].amount-=amt; b[0].amount-=amt; if(a[0].amount<.01)a.shift(); if(b[0].amount<.01)b.shift();} sl.innerHTML=rows.map(s=>`<div class="settle-row"><div class="avatar sm" style="${avatarStyle(s.from)}">${initials(s.from)}</div><div style="flex:1;font-size:13px"><b>${escapeHtml(s.from)}</b> pays <b>${escapeHtml(s.to)}</b></div><div class="settle-amt">${fmt(s.amount)}</div><div class="avatar sm" style="${avatarStyle(s.to)}">${initials(s.to)}</div></div>`).join('');} const ps=document.getElementById('person-summary'); ps.innerHTML=allMembers().map(m=>{const t=currentTrip(); const paid=t.expenses.filter(e=>e.paidBy===m).reduce((s,e)=>s+e.amount,0); const share=t.expenses.filter(e=>e.members?.includes(m)).reduce((s,e)=>s+e.amount/(e.members?.length||1),0); const net=bal[m]||0; return `<div class="list-item"><div class="avatar" style="${avatarStyle(m)}">${initials(m)}</div><div class="list-info"><div class="list-name">${escapeHtml(m)}</div><div class="list-sub">Paid ${fmt(paid)} · Share ${fmt(share)}</div></div><div class="amount-big ${net>=0?'green-text':'red-text'}">${net>=0?'+':'-'}${fmt(net)}</div></div>`;}).join('');}
-function renderHistory(){const hl=document.getElementById('history-list'); const sorted=latestExpenses(); if(!sorted.length){hl.innerHTML='<div class="empty"><i class="ti ti-history"></i>No expenses yet</div>';return;} let last='', html=''; sorted.forEach(e=>{if(e.date!==last){html+=`<div class="section-heading">${fmtDate(e.date)}</div>`; last=e.date;} html+=expenseRow(e);}); hl.innerHTML=html;}
+function editExpense(id){
+  const e=currentTrip().expenses.find(x=>x.id===id);
+  if(!e)return;
+  closeModal();
+  editingExpenseId=id;
+  selectedMembers=(e.members||[]).map(displayName);
+  splitType=e.splitType||'equal';
+  switchTab('add');
+  document.getElementById('e-desc').value=e.desc||'';
+  document.getElementById('e-amount').value=e.amount||'';
+  document.getElementById('e-cat').value=e.cat||'📦';
+  document.getElementById('e-paidby').value=displayName(e.paidBy)||currentUserName;
+  document.getElementById('e-date').value=e.date||today();
+  document.getElementById('e-notes').value=e.notes||'';
+  renderAddForm();
+  document.getElementById('e-paidby').value=displayName(e.paidBy)||currentUserName;
+}
+
+function addFriend(){
+  const t=currentTrip();
+  const inp=document.getElementById('f-name');
+  const name=inp.value.trim();
+  if(!name)return;
+  if(allMembers().some(m=>m.toLowerCase()===name.toLowerCase()))return toast('⚠️ Already in your group');
+  t.friends.push(name);
+  inp.value='';
+  save();
+  toast('👋 '+name+' added');
+}
+
+function removeFriend(name){
+  const actualName=displayName(name);
+  if(actualName.toLowerCase()===currentUserName.toLowerCase()) return toast('⚠️ You cannot remove your own profile from this device');
+  if(!confirm('Remove '+actualName+' from this trip? Their existing expenses will remain.'))return;
+  const t=currentTrip();
+  t.friends=t.friends.filter(f=>displayName(f).toLowerCase()!==actualName.toLowerCase());
+  save();
+}
+
+function renderFriends(){
+  const fl=document.getElementById('friends-list');
+  const members=allMembers();
+  const bal=computeBalances();
+  fl.innerHTML=members.map(f=>{
+    const b=bal[f]||0, cls=b>=0?'green-text':'red-text', sign=b>=0?'+':'-';
+    const isMe=f.toLowerCase()===currentUserName.toLowerCase();
+    const canRemove=!isMe && (currentTrip().friends||[]).some(x=>displayName(x).toLowerCase()===f.toLowerCase());
+    const del=canRemove?`<button class="btn sm danger" onclick="removeFriend(${jsArg(f)})"><i class="ti ti-trash"></i></button>`:'';
+    return `<div class="list-item"><div class="avatar" style="${avatarStyle(f)}">${initials(f)}</div><div class="list-info"><div class="list-name">${escapeHtml(f)}${isMe?' (you)':''}</div><div class="list-sub">${b===0?'settled':(b>0?'gets back ':'owes ')+fmt(b)}</div></div><div class="amount-big ${cls}">${sign}${fmt(b)}</div>${del}</div>`;
+  }).join('');
+}
+
+function renderSettle(){
+  const bal=computeBalances();
+  const owers=Object.entries(bal).filter(([,v])=>v<0).map(([name,v])=>({name,amount:-v}));
+  const oweds=Object.entries(bal).filter(([,v])=>v>0).map(([name,v])=>({name,amount:v}));
+  const sl=document.getElementById('settle-list');
+  if(!owers.length){sl.innerHTML='<div class="empty"><i class="ti ti-circle-check"></i>Everyone is settled up! 🎉</div>';}
+  else {
+    const rows=[], a=owers.map(x=>({...x})), b=oweds.map(x=>({...x}));
+    while(a.length&&b.length){const amt=Math.min(a[0].amount,b[0].amount); rows.push({from:a[0].name,to:b[0].name,amount:amt}); a[0].amount-=amt; b[0].amount-=amt; if(a[0].amount<.01)a.shift(); if(b[0].amount<.01)b.shift();}
+    sl.innerHTML=rows.map(s=>`<div class="settle-row"><div class="avatar sm" style="${avatarStyle(s.from)}">${initials(s.from)}</div><div style="flex:1;font-size:13px"><b>${escapeHtml(s.from)}</b> pays <b>${escapeHtml(s.to)}</b></div><div class="settle-amt">${fmt(s.amount)}</div><div class="avatar sm" style="${avatarStyle(s.to)}">${initials(s.to)}</div></div>`).join('');
+  }
+  const ps=document.getElementById('person-summary');
+  ps.innerHTML=allMembers().map(m=>{
+    const t=currentTrip();
+    const paid=t.expenses.filter(e=>displayName(e.paidBy)===m).reduce((s,e)=>s+Number(e.amount||0),0);
+    const share=t.expenses.filter(e=>(e.members||[]).map(displayName).includes(m)).reduce((s,e)=>s+Number(e.amount||0)/((e.members||[]).length||1),0);
+    const net=bal[m]||0;
+    return `<div class="list-item"><div class="avatar" style="${avatarStyle(m)}">${initials(m)}</div><div class="list-info"><div class="list-name">${escapeHtml(m)}${m.toLowerCase()===currentUserName.toLowerCase()?' (you)':''}</div><div class="list-sub">Paid ${fmt(paid)} · Share ${fmt(share)}</div></div><div class="amount-big ${net>=0?'green-text':'red-text'}">${net>=0?'+':'-'}${fmt(net)}</div></div>`;
+  }).join('');
+}
+
+function renderHistory(){
+  const hl=document.getElementById('history-list');
+  const sorted=latestExpenses();
+  if(!sorted.length){hl.innerHTML='<div class="empty"><i class="ti ti-history"></i>No expenses yet</div>';return;}
+  let last='', html='';
+  sorted.forEach(e=>{if(e.date!==last){html+=`<div class="section-heading">${fmtDate(e.date)}</div>`; last=e.date;} html+=expenseRow(e);});
+  hl.innerHTML=html;
+}
+
 function clearAll(){if(!confirm('Delete all expenses for this trip?'))return; const t=currentTrip(); t.expenses=[]; t.nextId=1; save(); toast('🗑️ Trip expenses cleared');}
-function openDetail(id){const e=currentTrip().expenses.find(x=>x.id===id); if(!e)return; const count=e.members?.length||1; document.getElementById('modal-content').innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem"><div style="font-size:40px">${e.cat}</div><div><div class="modal-title" style="margin-bottom:2px">${escapeHtml(e.desc)}</div><div style="font-size:13px;color:var(--text-secondary)">${fmtDate(e.date)}</div></div></div><div class="summary-grid" style="margin-bottom:1rem"><div class="stat"><div class="stat-label">Total</div><div class="stat-value">${fmt(e.amount)}</div></div><div class="stat"><div class="stat-label">Per person</div><div class="stat-value">${state.currency}${(e.amount/count).toFixed(2)}</div></div><div class="stat"><div class="stat-label">People</div><div class="stat-value">${count}</div></div></div><div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px">Paid by</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem"><div class="avatar sm" style="${avatarStyle(e.paidBy)}">${initials(e.paidBy)}</div><span style="font-weight:500">${escapeHtml(e.paidBy)}</span></div><div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px">Split between</div><div class="chips" style="margin-bottom:1rem">${(e.members||[]).map(m=>`<div class="chip selected">${initials(m)} ${escapeHtml(m)}</div>`).join('')}</div>${e.notes?`<div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">Notes</div><div style="font-size:14px;padding:10px;background:var(--bg-secondary);border-radius:var(--radius)">${escapeHtml(e.notes)}</div>`:''}<div style="display:flex;gap:8px;margin-top:1.2rem"><button class="btn" style="flex:1;justify-content:center" onclick="editExpense(${e.id})"><i class="ti ti-edit"></i> Edit</button><button class="btn danger" style="flex:1;justify-content:center" onclick="deleteExpense(${e.id})"><i class="ti ti-trash"></i> Delete</button><button class="btn" style="flex:1;justify-content:center" onclick="closeModal()"><i class="ti ti-x"></i> Close</button></div>`; document.getElementById('detail-modal').classList.add('open');}
+
+function openDetail(id){
+  const e=currentTrip().expenses.find(x=>x.id===id);
+  if(!e)return;
+  const members=(e.members||[]).map(displayName);
+  const count=members.length||1;
+  const paidBy=displayName(e.paidBy);
+  document.getElementById('modal-content').innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem"><div style="font-size:40px">${e.cat}</div><div><div class="modal-title" style="margin-bottom:2px">${escapeHtml(e.desc)}</div><div style="font-size:13px;color:var(--text-secondary)">${fmtDate(e.date)}</div></div></div><div class="summary-grid" style="margin-bottom:1rem"><div class="stat"><div class="stat-label">Total</div><div class="stat-value">${fmt(e.amount)}</div></div><div class="stat"><div class="stat-label">Per person</div><div class="stat-value">${state.currency}${(Number(e.amount||0)/count).toFixed(2)}</div></div><div class="stat"><div class="stat-label">People</div><div class="stat-value">${count}</div></div></div><div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px">Paid by</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem"><div class="avatar sm" style="${avatarStyle(paidBy)}">${initials(paidBy)}</div><span style="font-weight:500">${escapeHtml(paidBy)}</span></div><div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px">Split between</div><div class="chips" style="margin-bottom:1rem">${members.map(m=>`<div class="chip selected">${initials(m)} ${escapeHtml(m)}</div>`).join('')}</div>${e.notes?`<div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">Notes</div><div style="font-size:14px;padding:10px;background:var(--bg-secondary);border-radius:var(--radius)">${escapeHtml(e.notes)}</div>`:''}<div style="display:flex;gap:8px;margin-top:1.2rem"><button class="btn" style="flex:1;justify-content:center" onclick="editExpense(${e.id})"><i class="ti ti-edit"></i> Edit</button><button class="btn danger" style="flex:1;justify-content:center" onclick="deleteExpense(${e.id})"><i class="ti ti-trash"></i> Delete</button><button class="btn" style="flex:1;justify-content:center" onclick="closeModal()"><i class="ti ti-x"></i> Close</button></div>`;
+  document.getElementById('detail-modal').classList.add('open');
+}
 function closeModal(){document.getElementById('detail-modal').classList.remove('open');}
 function deleteExpense(id){if(!confirm('Delete this expense?'))return; const t=currentTrip(); t.expenses=t.expenses.filter(e=>e.id!==id); save(); closeModal(); toast('🗑️ Expense deleted');}
+
+ensureProfile();
 load();
 </script>
 </body>
