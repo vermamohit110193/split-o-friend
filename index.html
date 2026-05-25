@@ -282,6 +282,9 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   const appRef = db.ref("splitofriend/liveState");
+
+  console.log("✅ Firebase initialized");
+  console.log("📌 Firebase DB path:", appRef.toString());
 </script>
 
 <script>
@@ -302,51 +305,92 @@ let splitType = 'equal';
 let selectedMembers = [];
 
 // ── Persistence ────────────────────────────────────────
+let isFirebaseReady = false;
+let isApplyingRemote = false;
+
+function cleanStateForFirebase(data) {
+  return JSON.parse(JSON.stringify(data));
+}
+
 function applyStateToUI() {
   document.documentElement.dataset.theme = state.theme || 'light';
-  document.getElementById('currency-sel').value = state.currency || '£';
+
+  const currencySelect = document.getElementById('currency-sel');
+  if (currencySelect) currencySelect.value = state.currency || '£';
+
   updateThemeIcon();
 }
 
 function save() {
-  localStorage.setItem('splitofriend', JSON.stringify(state));
+  try {
+    localStorage.setItem('splitofriend', JSON.stringify(state));
+  } catch (error) {
+    console.error('❌ Local save failed:', error);
+  }
 
-  // Save latest app state to Firebase Realtime Database
-  appRef.set(state).catch((error) => {
-    console.error('Firebase save failed:', error);
-    toast('⚠️ Firebase save failed');
-  });
+  renderAll();
+
+  if (typeof appRef === 'undefined' || !appRef) {
+    console.error('❌ Firebase appRef missing');
+    toast('⚠️ Firebase not ready');
+    return;
+  }
+
+  appRef.set(cleanStateForFirebase(state))
+    .then(() => {
+      console.log('✅ Saved to Firebase:', state);
+    })
+    .catch((error) => {
+      console.error('❌ Firebase save failed:', error);
+      toast('⚠️ Firebase save failed: ' + error.message);
+    });
 }
 
 function load() {
-  // Load localStorage first so app opens instantly even before Firebase responds
   const d = localStorage.getItem('splitofriend');
+
   if (d) {
     try {
       state = JSON.parse(d);
+      console.log('✅ Loaded localStorage data:', state);
     } catch (error) {
-      console.error('Local data parse failed:', error);
+      console.error('❌ Local data parse failed:', error);
     }
   }
 
   applyStateToUI();
+  renderAll();
 
-  // Listen for live Firebase updates across devices/browsers
   appRef.on('value', (snapshot) => {
+    console.log('🔥 Firebase snapshot received:', snapshot.val());
+
     if (snapshot.exists()) {
-      state = snapshot.val();
+      isApplyingRemote = true;
+
+      const remoteState = snapshot.val();
+
+      state = {
+        friends: Array.isArray(remoteState.friends) ? remoteState.friends : [],
+        expenses: Array.isArray(remoteState.expenses) ? remoteState.expenses : [],
+        currency: remoteState.currency || '£',
+        theme: remoteState.theme || 'light',
+        nextId: remoteState.nextId || 1
+      };
+
       localStorage.setItem('splitofriend', JSON.stringify(state));
       applyStateToUI();
       renderAll();
+
+      isApplyingRemote = false;
+      isFirebaseReady = true;
     } else {
-      // First-time setup: push default/local state to Firebase
-      appRef.set(state).catch((error) => {
-        console.error('Initial Firebase setup failed:', error);
-      });
+      console.log('ℹ️ No Firebase data found. Creating initial Firebase record...');
+      isFirebaseReady = true;
+      save();
     }
   }, (error) => {
-    console.error('Firebase load failed:', error);
-    toast('⚠️ Firebase connection failed');
+    console.error('❌ Firebase load failed:', error);
+    toast('⚠️ Firebase connection failed: ' + error.message);
   });
 }
 
@@ -422,7 +466,11 @@ function renderAll() {
   renderFriends();
   renderSettle();
   renderHistory();
-  renderAddForm();
+
+  const addTab = document.getElementById('tab-add');
+  if (addTab && addTab.classList.contains('active')) {
+    renderAddForm();
+  }
 }
 
 // ── Dashboard ──────────────────────────────────────────
@@ -524,21 +572,21 @@ function addFriend() {
 
   if (!name) return;
 
-  const normalizedName = name.toLowerCase();
-
   const alreadyExists = allMembers().some(
-    m => m.toLowerCase() === normalizedName
+    m => m.toLowerCase() === name.toLowerCase()
   );
 
   if (alreadyExists) {
     toast('⚠️ Already in your group');
+    console.log('⚠️ Friend already exists:', name, state.friends);
     return;
   }
 
   state.friends.push(name);
+  console.log('👋 Adding friend:', name, state.friends);
+
   inp.value = '';
   save();
-  renderAll();
   toast('👋 ' + name + ' added!');
 }
 
