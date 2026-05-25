@@ -282,7 +282,10 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   const appRef = db.ref("splitofriend/liveState");
-
+ console.log('firebase?', typeof firebase);
+  console.log('appRef?', typeof appRef !== 'undefined' ? appRef.toString() : 'missing');
+  console.log('addFriend?', typeof addFriend);
+  console.log('state?', state);
   console.log("✅ Firebase initialized");
   console.log("📌 Firebase DB path:", appRef.toString());
 </script>
