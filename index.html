@@ -264,6 +264,26 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCMnkk9tfexhUeBAcdZoppUJW2I8cXF-dw",
+    authDomain: "split-o-friend.firebaseapp.com",
+    databaseURL: "https://split-o-friend-default-rtdb.firebaseio.com",
+    projectId: "split-o-friend",
+    storageBucket: "split-o-friend.firebasestorage.app",
+    messagingSenderId: "528909969367",
+    appId: "1:528909969367:web:15b359dda39a8984a54d92"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const appRef = db.ref("splitofriend/liveState");
+</script>
+
 <script>
 // ── State ──────────────────────────────────────────────
 let state = {
@@ -282,13 +302,52 @@ let splitType = 'equal';
 let selectedMembers = [];
 
 // ── Persistence ────────────────────────────────────────
-function save() { localStorage.setItem('splitofriend', JSON.stringify(state)); }
-function load() {
-  const d = localStorage.getItem('splitofriend');
-  if (d) state = JSON.parse(d);
-  document.documentElement.dataset.theme = state.theme;
-  document.getElementById('currency-sel').value = state.currency;
+function applyStateToUI() {
+  document.documentElement.dataset.theme = state.theme || 'light';
+  document.getElementById('currency-sel').value = state.currency || '£';
   updateThemeIcon();
+}
+
+function save() {
+  localStorage.setItem('splitofriend', JSON.stringify(state));
+
+  // Save latest app state to Firebase Realtime Database
+  appRef.set(state).catch((error) => {
+    console.error('Firebase save failed:', error);
+    toast('⚠️ Firebase save failed');
+  });
+}
+
+function load() {
+  // Load localStorage first so app opens instantly even before Firebase responds
+  const d = localStorage.getItem('splitofriend');
+  if (d) {
+    try {
+      state = JSON.parse(d);
+    } catch (error) {
+      console.error('Local data parse failed:', error);
+    }
+  }
+
+  applyStateToUI();
+
+  // Listen for live Firebase updates across devices/browsers
+  appRef.on('value', (snapshot) => {
+    if (snapshot.exists()) {
+      state = snapshot.val();
+      localStorage.setItem('splitofriend', JSON.stringify(state));
+      applyStateToUI();
+      renderAll();
+    } else {
+      // First-time setup: push default/local state to Firebase
+      appRef.set(state).catch((error) => {
+        console.error('Initial Firebase setup failed:', error);
+      });
+    }
+  }, (error) => {
+    console.error('Firebase load failed:', error);
+    toast('⚠️ Firebase connection failed');
+  });
 }
 
 // ── Helpers ────────────────────────────────────────────
@@ -604,9 +663,7 @@ function deleteExpense(id) {
 
 // ── Init ───────────────────────────────────────────────
 load();
-renderDashboard();
-renderFriends();
+renderAll();
 </script>
 </body>
 </html>
-
