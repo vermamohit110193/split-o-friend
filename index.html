@@ -349,12 +349,22 @@ function save() {
     });
 }
 
+  function normalizeState(data) {
+  return {
+    friends: Array.isArray(data?.friends) ? data.friends : [],
+    expenses: Array.isArray(data?.expenses) ? data.expenses : [],
+    currency: data?.currency || '£',
+    theme: data?.theme || 'light',
+    nextId: data?.nextId || 1
+  };
+}
+
 function load() {
   const d = localStorage.getItem('splitofriend');
 
   if (d) {
     try {
-      state = JSON.parse(d);
+      state = normalizeState(JSON.parse(d));
       console.log('✅ Loaded localStorage data:', state);
     } catch (error) {
       console.error('❌ Local data parse failed:', error);
@@ -370,7 +380,7 @@ function load() {
     if (snapshot.exists()) {
       isApplyingRemote = true;
 
-      const remoteState = snapshot.val();
+      state = normalizeState(snapshot.val());
 
       state = {
         friends: Array.isArray(remoteState.friends) ? remoteState.friends : [],
@@ -559,6 +569,9 @@ function addExpense() {
   if (!desc) { toast('⚠️ Please enter a description'); return; }
   if (!amount || amount <= 0) { toast('⚠️ Please enter a valid amount'); return; }
   if (!selectedMembers.length) { toast('⚠️ Select at least one person'); return; }
+  if (!Array.isArray(state.expenses)) {
+  state.expenses = [];
+}
   state.expenses.push({ id: state.nextId++, desc, amount, paidBy, cat, members: selectedMembers.slice(), splitType, date, notes });
   save();
   document.getElementById('e-desc').value = '';
@@ -584,7 +597,9 @@ function addFriend() {
     console.log('⚠️ Friend already exists:', name, state.friends);
     return;
   }
-
+  if (!Array.isArray(state.friends)) {
+  state.friends = [];
+}
   state.friends.push(name);
   console.log('👋 Adding friend:', name, state.friends);
 
