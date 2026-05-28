@@ -142,6 +142,8 @@ let splitType = 'equal';
 let selectedMembers = [];
 let editingExpenseId = null;
 let activeTab = 'dashboard';
+let addFormInitialized = false;
+
 
 function escapeHtml(s){ return String(s ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 function jsArg(s){ return JSON.stringify(String(s ?? '')); }
@@ -331,7 +333,20 @@ function computeBalances(){
 function toggleTheme(){state.theme=state.theme==='light'?'dark':'light'; applyStateToUI(); save();}
 function updateThemeIcon(){const b=document.getElementById('theme-btn'); if(b)b.innerHTML=state.theme==='dark'?'<i class="ti ti-sun"></i>':'<i class="ti ti-moon"></i>';}
 function setCurrency(c){state.currency=c; save();}
-function switchTab(t){activeTab=t; ['dashboard','add','friends','settle','history'].forEach(id=>{document.getElementById('tab-'+id).classList.toggle('active',id===t); document.getElementById('t-'+id).classList.toggle('active',id===t);}); renderAll();}
+function switchTab(t){
+  activeTab = t;
+
+  if (t === 'add' && !editingExpenseId) {
+    addFormInitialized = false;
+  }
+
+  ['dashboard','add','friends','settle','history'].forEach(id=>{
+    document.getElementById('tab-'+id).classList.toggle('active',id===t);
+    document.getElementById('t-'+id).classList.toggle('active',id===t);
+  });
+
+  renderAll();
+}
 function renderAll(){renderTripSelector(); renderDashboard(); renderFriends(); renderSettle(); renderHistory(); if(activeTab==='add') renderAddForm();}
 function latestExpenses(){return (currentTrip()?.expenses||[]).slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0) || (b.date||'').localeCompare(a.date||'') || (b.id||0)-(a.id||0));}
 
@@ -359,21 +374,57 @@ function expenseRow(e){
 }
 
 function renderAddForm(){
-  const pb=document.getElementById('e-paidby');
-  const members=allMembers();
-  pb.innerHTML=members.map(m=>`<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
-  if(!editingExpenseId && selectedMembers.length===0) selectedMembers=members.slice();
-  const mc=document.getElementById('e-members');
-  mc.innerHTML=members.map(m=>`<div class="chip ${selectedMembers.includes(m)?'selected':''}" onclick="toggleMember(this,${jsArg(m)})">${initials(m)} ${escapeHtml(m)}</div>`).join('');
-  const di=document.getElementById('e-date');
-  if(!di.value) di.value=today();
-  document.getElementById('expense-form-title').textContent=editingExpenseId?'Edit expense':'New expense';
-  document.getElementById('expense-submit-btn').innerHTML=editingExpenseId?'<i class="ti ti-device-floppy"></i> Save changes':'<i class="ti ti-plus"></i> Add expense';
-  document.getElementById('cancel-edit-btn').style.display=editingExpenseId?'inline-flex':'none';
+  const pb = document.getElementById('e-paidby');
+  const members = allMembers();
+
+  pb.innerHTML = members.map(m =>
+    `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`
+  ).join('');
+
+  if (!editingExpenseId && !addFormInitialized) {
+    selectedMembers = members.slice();
+    addFormInitialized = true;
+  }
+
+  const mc = document.getElementById('e-members');
+
+  mc.innerHTML = members.map(m => {
+    const selected = selectedMembers.some(x => x.toLowerCase() === m.toLowerCase());
+    return `<div class="chip ${selected ? 'selected' : ''}" onclick="toggleMember(this,${jsArg(m)})">${initials(m)} ${escapeHtml(m)}</div>`;
+  }).join('');
+
+  const di = document.getElementById('e-date');
+  if (!di.value) di.value = today();
+
+  document.getElementById('expense-form-title').textContent = editingExpenseId ? 'Edit expense' : 'New expense';
+
+  document.getElementById('expense-submit-btn').innerHTML = editingExpenseId
+    ? '<i class="ti ti-device-floppy"></i> Save changes'
+    : '<i class="ti ti-plus"></i> Add expense';
+
+  document.getElementById('cancel-edit-btn').style.display = editingExpenseId ? 'inline-flex' : 'none';
+
   setSplit(splitType);
 }
 
-function toggleMember(el,name){el.classList.toggle('selected'); selectedMembers=el.classList.contains('selected') ? [...new Set([...selectedMembers,name])] : selectedMembers.filter(m=>m!==name);}
+function toggleMember(el, name) {
+  const exists = selectedMembers.some(
+    m => m.toLowerCase() === name.toLowerCase()
+  );
+
+  if (exists) {
+    selectedMembers = selectedMembers.filter(
+      m => m.toLowerCase() !== name.toLowerCase()
+    );
+    el.classList.remove('selected');
+  } else {
+    selectedMembers.push(name);
+    el.classList.add('selected');
+  }
+
+  console.log('Selected members:', selectedMembers);
+}
+
 function setSplit(type){splitType=type; document.getElementById('so-equal')?.classList.toggle('selected',type==='equal'); document.getElementById('so-payer')?.classList.toggle('selected',type==='payer');}
 
 function submitExpense(){
@@ -401,7 +452,14 @@ function submitExpense(){
   switchTab('dashboard');
 }
 
-function clearExpenseForm(){editingExpenseId=null; ['e-desc','e-amount','e-notes'].forEach(id=>document.getElementById(id).value=''); document.getElementById('e-date').value=today(); splitType='equal'; selectedMembers=[];}
+function clearExpenseForm(){
+  editingExpenseId = null;
+  ['e-desc','e-amount','e-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('e-date').value = today();
+  splitType = 'equal';
+  selectedMembers = [];
+  addFormInitialized = false;
+}
 function cancelEdit(showToast=true){clearExpenseForm(); if(activeTab==='add')renderAddForm(); if(showToast)toast('Edit cancelled');}
 function editExpense(id){
   const e=currentTrip().expenses.find(x=>x.id===id);
