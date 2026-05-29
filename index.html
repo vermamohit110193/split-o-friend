@@ -36,7 +36,7 @@
   .card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:8px; }
   .tabs { position:fixed; bottom:0; left:0; right:0; background:var(--bg-card); border-top:.5px solid var(--border); display:flex; z-index:100; }
   .tab { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:10px 4px 14px; cursor:pointer; color:var(--text-hint); font-size:10px; border:none; background:none; }
-  .tab i { font-size:22px; } .tab.active { color:var(--green); }
+  .tab i { font-size:18px; } .tab.active { color:var(--green); } .tab.active i { font-size:16px; }
   .section { display:none; } .section.active { display:block; }
   .form-group { margin-bottom:14px; } .form-label { font-size:12px; color:var(--text-secondary); margin-bottom:6px; display:block; }
   .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; } .row-flex { display:flex; gap:8px; align-items:flex-start; }
@@ -60,6 +60,8 @@
   .modal-overlay.open { display:flex; } .modal { background:var(--bg-card); border-radius:20px 20px 0 0; padding:1.5rem; width:100%; max-width:700px; max-height:90vh; overflow-y:auto; }
   .modal-handle { width:40px; height:4px; background:var(--border-md); border-radius:2px; margin:0 auto 1.2rem; } .modal-title { font-size:17px; font-weight:600; margin-bottom:1.2rem; }
   .section-heading { font-size:13px; font-weight:600; color:var(--text-secondary); margin:1.2rem 0 8px; }
+  .trip-actions { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+  .trip-actions .btn { white-space:nowrap; }
   @media(max-width:620px){ .logo{font-size:18px}.topbar{flex-wrap:wrap;padding:.5rem 1rem}.trip-sel{max-width:130px}.summary-grid{grid-template-columns:1fr}.row2{grid-template-columns:1fr} }
 </style>
 </head>
@@ -550,17 +552,18 @@ function renderTrips(){
     const friendCount=(t.friends||[]).length;
     const isActive=t.id===state.activeTripId;
     const activeBadge=isActive?'<span class="chip selected" style="cursor:default">Active</span>':'';
+    const safeId = escapeHtml(t.id);
     const deleteBtn=trips.length>1
-      ? `<button class="btn sm danger" onclick="deleteTrip(${jsArg(t.id)})"><i class="ti ti-trash"></i> Delete</button>`
-      : '<button class="btn sm danger" disabled style="opacity:.45;cursor:not-allowed"><i class="ti ti-trash"></i> Delete</button>';
+      ? `<button type="button" class="btn sm danger trip-delete-btn" data-trip-id="${safeId}"><i class="ti ti-trash"></i> Delete</button>`
+      : '<button type="button" class="btn sm danger" disabled style="opacity:.45;cursor:not-allowed"><i class="ti ti-trash"></i> Delete</button>';
     return `<div class="list-item">
       <div class="cat-icon"><i class="ti ti-map-pin"></i></div>
       <div class="list-info">
         <div class="list-name">${escapeHtml(t.name)} ${activeBadge}</div>
         <div class="list-sub">${friendCount} friends · ${expenseCount} expenses · Total ${fmt(total)}</div>
       </div>
-      <div style="display:flex;gap:6px;align-items:center">
-        <button class="btn sm" onclick="switchTripFromList(${jsArg(t.id)})"><i class="ti ti-eye"></i> View</button>
+      <div class="trip-actions">
+        <button type="button" class="btn sm trip-view-btn" data-trip-id="${safeId}"><i class="ti ti-eye"></i> View</button>
         ${deleteBtn}
       </div>
     </div>`;
@@ -573,19 +576,21 @@ function switchTripFromList(id){
 }
 
 function deleteTrip(id){
+  id = String(id || '');
   const trips=Object.values(state.trips||{});
   if(trips.length<=1) return toast('⚠️ At least one trip is required');
   const trip=state.trips[id];
-  if(!trip)return;
+  if(!trip) return toast('⚠️ Trip not found');
   if(!confirm('Delete trip "'+trip.name+'"? This will permanently delete all expenses in this trip.'))return;
   delete state.trips[id];
   if(state.activeTripId===id){
     const remaining=Object.values(state.trips).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
-    state.activeTripId=remaining[0]?.id;
+    state.activeTripId=remaining[0]?.id || Object.keys(state.trips)[0];
   }
   selectedMembers=[];
   cancelEdit(false);
   save();
+  switchTab('trips');
   toast('🗑️ Trip deleted');
 }
 
@@ -611,6 +616,24 @@ function openDetail(id){
 }
 function closeModal(){document.getElementById('detail-modal').classList.remove('open');}
 function deleteExpense(id){if(!confirm('Delete this expense?'))return; const t=currentTrip(); t.expenses=t.expenses.filter(e=>e.id!==id); save(); closeModal(); toast('🗑️ Expense deleted');}
+
+
+document.addEventListener('click', function(event) {
+  const viewBtn = event.target.closest('.trip-view-btn');
+  if (viewBtn) {
+    event.preventDefault();
+    event.stopPropagation();
+    switchTripFromList(viewBtn.dataset.tripId);
+    return;
+  }
+
+  const deleteBtn = event.target.closest('.trip-delete-btn');
+  if (deleteBtn) {
+    event.preventDefault();
+    event.stopPropagation();
+    deleteTrip(deleteBtn.dataset.tripId);
+  }
+});
 
 ensureProfile();
 load();
