@@ -68,7 +68,7 @@
   .auth-logo { display:flex; align-items:center; gap:10px; margin-bottom:1rem; }
   .auth-logo .mark { font-size:34px; }
   .auth-title { font-size:25px; font-weight:750; color:var(--green); line-height:1.1; }
-  .auth-subtitle { font-size:13px; color:var(--text-secondary); margin:0 0 1.2rem; line-height:1.45; }
+  .auth-subtitle { font-size:13px; color:var(--text-secondary); margin-top:4px; line-height:1.45; }
   .auth-tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:1rem; background:var(--bg-secondary); padding:4px; border-radius:12px; }
   .auth-tab { border:none; border-radius:9px; padding:10px; cursor:pointer; background:transparent; color:var(--text-secondary); font-weight:600; }
   .auth-tab.active { background:var(--bg-card); color:var(--green); box-shadow:var(--shadow); }
@@ -80,16 +80,22 @@
 <body>
 <div id="auth-screen" class="auth-screen">
   <div class="auth-card">
-    <div class="auth-logo"><div class="mark">🤝</div><div><div class="auth-title">Split O Friend</div><div class="auth-subtitle">Login to your profile or register a new account to keep your trips separate.</div></div></div>
+    <div class="auth-logo">
+      <div class="mark">🤝</div>
+      <div>
+        <div class="auth-title">Split O Friend</div>
+        <div class="auth-subtitle">Login to your profile, or register if you are new.</div>
+      </div>
+    </div>
     <div class="auth-tabs">
       <button type="button" class="auth-tab active" id="auth-login-tab" onclick="setAuthMode('login')">Login</button>
       <button type="button" class="auth-tab" id="auth-register-tab" onclick="setAuthMode('register')">Register</button>
     </div>
     <div class="form-group"><label class="form-label">Username</label><input type="text" id="auth-username" placeholder="e.g. mohit" autocomplete="username"></div>
-    <div class="form-group"><label class="form-label">Password</label><input type="password" id="auth-password" placeholder="Enter password" autocomplete="current-password"></div>
+    <div class="form-group"><label class="form-label">Password</label><input type="password" id="auth-password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')submitAuth()"></div>
     <div class="form-group hidden" id="auth-name-wrap"><label class="form-label">Display name</label><input type="text" id="auth-display-name" placeholder="e.g. Mohit Verma"></div>
     <button class="btn primary" id="auth-submit-btn" onclick="submitAuth()"><i class="ti ti-login"></i> Login</button>
-    <div class="auth-help" id="auth-help">New user? Click Register and create username/password.</div>
+    <div class="auth-help" id="auth-help">No profile yet? Click Register and create a username/password.</div>
   </div>
 </div>
 
@@ -100,7 +106,7 @@
     <select class="trip-sel" id="trip-sel" onchange="switchTrip(this.value)"></select>
     <button class="icon-btn" onclick="createTrip()"><i class="ti ti-plus"></i> Trip</button>
     <button class="icon-btn" onclick="changeProfile()"><i class="ti ti-user-circle"></i> <span id="profile-label">Profile</span></button>
-    <button class="icon-btn" onclick="logout()"><i class="ti ti-logout"></i></button>
+    <button class="icon-btn" onclick="logout()" title="Logout"><i class="ti ti-logout"></i></button>
     <select class="currency-sel" id="currency-sel" onchange="setCurrency(this.value)"><option value="£">£ GBP</option><option value="$">$ USD</option><option value="€">€ EUR</option><option value="₹">₹ INR</option><option value="¥">¥ JPY</option><option value="A$">A$ AUD</option><option value="C$">C$ CAD</option></select>
     <button class="icon-btn" onclick="toggleTheme()" id="theme-btn"><i class="ti ti-moon"></i></button>
   </div>
@@ -151,7 +157,6 @@ let liveListenerAttached = false;
 <script>
 const defaultTripId = 'trip_' + Date.now();
 const PROFILE_KEY = 'splitofriend_profileName';
-const AUTH_SESSION_KEY = 'splitofriend_loggedInUser';
 let currentUsernameKey = '';
 let authMode = 'login';
 let currentUserName = '';
@@ -191,6 +196,7 @@ function userKey(username) {
 }
 
 function encodePassword(password) {
+  // Demo-only password storage. For production, use Firebase Authentication.
   return btoa(unescape(encodeURIComponent(String(password || ''))));
 }
 
@@ -203,8 +209,8 @@ function setAuthMode(mode) {
     ? '<i class="ti ti-user-plus"></i> Register'
     : '<i class="ti ti-login"></i> Login';
   document.getElementById('auth-help').textContent = authMode === 'register'
-    ? 'Already registered? Click Login and use your username/password.'
-    : 'New user? Click Register and create username/password.';
+    ? 'Already have a profile? Click Login and enter your username/password.'
+    : 'No profile yet? Click Register and create a username/password.';
 }
 
 function createBlankState() {
@@ -223,8 +229,10 @@ function submitAuth() {
   const username = document.getElementById('auth-username').value.trim();
   const password = document.getElementById('auth-password').value;
   const display = document.getElementById('auth-display-name').value.trim();
+
   if (!username) return toast('⚠️ Please enter username');
   if (!password) return toast('⚠️ Please enter password');
+
   const key = userKey(username);
   if (!key) return toast('⚠️ Username can use letters, numbers, _ or -');
 
@@ -236,7 +244,12 @@ function submitAuth() {
       currentUserName = display || username;
       state = createBlankState();
       return userRef.set({
-        profile: { username: key, displayName: currentUserName, password: encodePassword(password), createdAt: Date.now() },
+        profile: {
+          username: key,
+          displayName: currentUserName,
+          password: encodePassword(password),
+          createdAt: Date.now()
+        },
         data: state
       }).then(() => startSession(key, currentUserName));
     }
@@ -252,11 +265,11 @@ function submitAuth() {
 function startSession(usernameKey, displayName) {
   currentUsernameKey = usernameKey;
   currentUserName = displayName || usernameKey;
-  localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ usernameKey, displayName: currentUserName }));
   localStorage.setItem(PROFILE_KEY, currentUserName);
   appRef = db.ref('splitofriend/users/' + currentUsernameKey + '/data');
   document.getElementById('auth-screen').style.display = 'none';
   document.getElementById('app-shell').style.display = 'block';
+  activeTab = 'dashboard';
   updateProfileLabel();
   load();
   toast('✅ Logged in as ' + currentUserName);
@@ -268,31 +281,14 @@ function logout() {
   currentUsernameKey = '';
   currentUserName = '';
   appRef = null;
-  localStorage.removeItem(AUTH_SESSION_KEY);
   document.getElementById('app-shell').style.display = 'none';
   document.getElementById('auth-screen').style.display = 'flex';
   document.getElementById('auth-password').value = '';
   toast('Logged out');
 }
 
-function checkLogin() {
-  const saved = localStorage.getItem(AUTH_SESSION_KEY);
-  if (!saved) return;
-  try {
-    const session = JSON.parse(saved);
-    if (session.usernameKey) startSession(session.usernameKey, session.displayName || session.usernameKey);
-  } catch(e) {
-    localStorage.removeItem(AUTH_SESSION_KEY);
-  }
-}
-
 function ensureProfile() {
-  let saved = (localStorage.getItem(PROFILE_KEY) || '').trim();
-  while (!saved) {
-    saved = (prompt('Enter your name for this device:', 'Mohit') || '').trim();
-    if (!saved) alert('Name is required so expenses can be saved under your profile.');
-  }
-  currentUserName = saved;
+  if (!currentUserName) currentUserName = 'Guest';
   localStorage.setItem(PROFILE_KEY, currentUserName);
   updateProfileLabel();
 }
@@ -303,8 +299,6 @@ function changeProfile() {
   currentUserName = name;
   localStorage.setItem(PROFILE_KEY, currentUserName);
   if (currentUsernameKey) db.ref('splitofriend/users/' + currentUsernameKey + '/profile/displayName').set(currentUserName);
-  const sessionRaw = localStorage.getItem(AUTH_SESSION_KEY);
-  if (sessionRaw) { try { const session = JSON.parse(sessionRaw); session.displayName = currentUserName; localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session)); } catch(e){} }
   selectedMembers = [];
   updateProfileLabel();
   renderAll();
@@ -535,7 +529,7 @@ function renderAddForm(){
 
   mc.innerHTML = members.map(m => {
     const selected = selectedMembers.some(x => x.toLowerCase() === m.toLowerCase());
-    return `<button type="button" class="chip ${selected ? 'selected' : ''}" onclick="toggleMember(event,${jsArg(m)})">${initials(m)} ${escapeHtml(m)}</button>`;
+    return `<div class="chip ${selected ? 'selected' : ''}" onclick="toggleMember(this,${jsArg(m)})">${initials(m)} ${escapeHtml(m)}</div>`;
   }).join('');
 
   const di = document.getElementById('e-date');
@@ -552,16 +546,16 @@ function renderAddForm(){
   setSplit(splitType);
 }
 
-function toggleMember(eventOrEl, name) {
-  if (eventOrEl && eventOrEl.preventDefault) {
-    eventOrEl.preventDefault();
-    eventOrEl.stopPropagation();
+function toggleMember(el, name) {
+  const cleanName = displayName(name);
+  const exists = selectedMembers.some(m => m.toLowerCase() === cleanName.toLowerCase());
+
+  if (exists) {
+    selectedMembers = selectedMembers.filter(m => m.toLowerCase() !== cleanName.toLowerCase());
+  } else {
+    selectedMembers.push(cleanName);
   }
-  name = displayName(name);
-  const exists = selectedMembers.some(m => m.toLowerCase() === name.toLowerCase());
-  selectedMembers = exists
-    ? selectedMembers.filter(m => m.toLowerCase() !== name.toLowerCase())
-    : selectedMembers.concat(name);
+
   renderAddForm();
 }
 
@@ -600,7 +594,7 @@ function clearExpenseForm(){
   selectedMembers = [];
   addFormInitialized = false;
 }
-function cancelEdit(showToast=true){clearExpenseForm(); if(activeTab==='add') switchTab('dashboard'); else renderAll(); if(showToast)toast('Edit cancelled');}
+function cancelEdit(showToast=true){clearExpenseForm(); if(showToast)toast('Edit cancelled'); if(activeTab==='add') switchTab('dashboard');}
 function editExpense(id){
   const e=currentTrip().expenses.find(x=>x.id===id);
   if(!e)return;
@@ -772,7 +766,9 @@ document.addEventListener('click', function(event) {
   }
 });
 
-checkLogin();
+setAuthMode('login');
+document.getElementById('auth-screen').style.display = 'flex';
+document.getElementById('app-shell').style.display = 'none';
 </script>
 </body>
 </html>
