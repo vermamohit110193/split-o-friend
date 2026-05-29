@@ -21,7 +21,7 @@
   .btn.sm { padding:5px 10px; font-size:12px; }
   .btn.danger { background:var(--red-light); color:var(--red); border-color:transparent; }
   .btn.ghost { background:transparent; border-color:transparent; color:var(--text-secondary); }
-  select,input[type=text],input[type=number],input[type=date] { width:100%; padding:10px 12px; font-size:14px; border:.5px solid var(--border-md); border-radius:var(--radius); background:var(--bg-secondary); color:var(--text); outline:none; font-family:inherit; }
+  select,input[type=text],input[type=password],input[type=number],input[type=date] { width:100%; padding:10px 12px; font-size:14px; border:.5px solid var(--border-md); border-radius:var(--radius); background:var(--bg-secondary); color:var(--text); outline:none; font-family:inherit; }
   .currency-sel,.trip-sel { width:auto; padding:7px 9px; font-size:13px; }
   .trip-sel { max-width:180px; }
   .wrap { max-width:700px; margin:0 auto; padding:1.5rem 1rem 6rem; }
@@ -62,22 +62,61 @@
   .section-heading { font-size:13px; font-weight:600; color:var(--text-secondary); margin:1.2rem 0 8px; }
   .trip-actions { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
   .trip-actions .btn { white-space:nowrap; }
+
+  .auth-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem; background:linear-gradient(135deg,var(--green-light),var(--bg)); }
+  .auth-card { width:100%; max-width:420px; background:var(--bg-card); border:.5px solid var(--border); box-shadow:var(--shadow); border-radius:22px; padding:1.5rem; }
+  .auth-logo { display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:1rem; font-size:24px; font-weight:700; color:var(--green); }
+  .auth-logo span { color:var(--text); font-weight:400; }
+  .auth-title { font-size:20px; font-weight:700; text-align:center; margin-bottom:6px; }
+  .auth-subtitle { font-size:13px; color:var(--text-secondary); text-align:center; margin-bottom:1.2rem; }
+  .auth-toggle { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:1rem; }
+  .auth-toggle button { padding:10px; border:.5px solid var(--border-md); border-radius:10px; background:var(--bg-secondary); color:var(--text-secondary); cursor:pointer; font-weight:600; }
+  .auth-toggle button.active { background:var(--green-light); color:var(--green); border-color:var(--green); }
+  .auth-hint { font-size:11px; color:var(--text-hint); margin-top:10px; line-height:1.4; text-align:center; }
+  .app-hidden { display:none !important; }
   @media(max-width:620px){ .logo{font-size:18px}.topbar{flex-wrap:wrap;padding:.5rem 1rem}.trip-sel{max-width:130px}.summary-grid{grid-template-columns:1fr}.row2{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
-<div class="topbar">
+
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">🤝 <div>Split<span> O Friend</span></div></div>
+    <div class="auth-title" id="auth-title">Login to your profile</div>
+    <div class="auth-subtitle">Use your username and password to access your own trips.</div>
+    <div class="auth-toggle">
+      <button type="button" id="login-toggle" class="active" onclick="setAuthMode('login')">Login</button>
+      <button type="button" id="register-toggle" onclick="setAuthMode('register')">Register</button>
+    </div>
+    <div class="form-group" id="name-group" style="display:none">
+      <label class="form-label">Your name</label>
+      <input type="text" id="auth-name" placeholder="e.g. Mohit Verma">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input type="text" id="auth-username" placeholder="Choose or enter username" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" id="auth-password" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="btn primary" id="auth-submit" onclick="submitAuth()"><i class="ti ti-login"></i> Login</button>
+    <div class="auth-hint">For this simple static app, profiles are saved in Firebase Realtime Database. For production, use Firebase Authentication instead of custom password storage.</div>
+  </div>
+</div>
+<div class="topbar app-hidden" id="app-topbar">
   <div class="topbar-left"><span style="font-size:24px">🤝</span><div class="logo">Split<span> O Friend</span></div></div>
   <div class="topbar-right">
     <select class="trip-sel" id="trip-sel" onchange="switchTrip(this.value)"></select>
     <button class="icon-btn" onclick="createTrip()"><i class="ti ti-plus"></i> Trip</button>
     <button class="icon-btn" onclick="changeProfile()"><i class="ti ti-user-circle"></i> <span id="profile-label">Profile</span></button>
+    <button class="icon-btn" onclick="logout()"><i class="ti ti-logout"></i></button>
     <select class="currency-sel" id="currency-sel" onchange="setCurrency(this.value)"><option value="£">£ GBP</option><option value="$">$ USD</option><option value="€">€ EUR</option><option value="₹">₹ INR</option><option value="¥">¥ JPY</option><option value="A$">A$ AUD</option><option value="C$">C$ CAD</option></select>
     <button class="icon-btn" onclick="toggleTheme()" id="theme-btn"><i class="ti ti-moon"></i></button>
   </div>
 </div>
 
-<div class="wrap">
+<div class="wrap app-hidden" id="app-wrap">
   <div id="tab-dashboard" class="section active">
     <div class="summary-grid"><div class="stat"><div class="stat-label">Total spent</div><div class="stat-value" id="s-total">£0</div></div><div class="stat"><div class="stat-label">You are owed</div><div class="stat-value green" id="s-owed">£0</div></div><div class="stat"><div class="stat-label">You owe</div><div class="stat-value red" id="s-owe">£0</div></div></div>
     <div class="card"><div class="card-title">Balances</div><div id="d-balances"></div></div>
@@ -86,7 +125,7 @@
 
   <div id="tab-add" class="section">
     <div class="card">
-      <div class="card-header"><div class="card-title" id="expense-form-title" style="margin-bottom:0">New expense</div><button class="btn sm ghost" id="cancel-edit-btn" onclick="cancelEdit()" style="display:none"><i class="ti ti-x"></i> Cancel edit</button></div>
+      <div class="card-header"><div class="card-title" id="expense-form-title" style="margin-bottom:0">New expense</div><button class="btn sm ghost" id="cancel-edit-btn" onclick="cancelEdit(true, true)" style="display:none"><i class="ti ti-x"></i> Cancel edit</button></div>
       <div class="form-group"><label class="form-label">Description</label><input type="text" id="e-desc" placeholder="e.g. Dinner at Nobu, Uber ride..."></div>
       <div class="row2"><div class="form-group"><label class="form-label">Amount</label><input type="number" id="e-amount" placeholder="0.00" min="0" step="0.01"></div><div class="form-group"><label class="form-label">Category</label><select id="e-cat"><option value="🍽️">🍽️ Food & Drink</option><option value="🚗">🚗 Transport</option><option value="🏠">🏠 Housing</option><option value="🎉">🎉 Entertainment</option><option value="🛒">🛒 Shopping</option><option value="💊">💊 Health</option><option value="✈️">✈️ Travel</option><option value="⚡">⚡ Utilities</option><option value="📦">📦 Other</option></select></div></div>
       <div class="form-group"><label class="form-label">Paid by</label><select id="e-paidby"></select></div>
@@ -104,7 +143,7 @@
   <div id="tab-trips" class="section"><div class="card"><div class="card-header"><div class="card-title" style="margin-bottom:0">All trips</div><button class="btn sm" onclick="createTrip()"><i class="ti ti-plus"></i> New trip</button></div><div id="trips-list"></div></div></div>
 </div>
 
-<div class="tabs"><button class="tab active" onclick="switchTab('dashboard')" id="t-dashboard"><i class="ti ti-layout-dashboard"></i>Home</button><button class="tab" onclick="switchTab('add')" id="t-add"><i class="ti ti-circle-plus"></i>Add</button><button class="tab" onclick="switchTab('friends')" id="t-friends"><i class="ti ti-users"></i>Friends</button><button class="tab" onclick="switchTab('settle')" id="t-settle"><i class="ti ti-arrows-exchange"></i>Settle</button><button class="tab" onclick="switchTab('history')" id="t-history"><i class="ti ti-history"></i>History</button><button class="tab" onclick="switchTab('trips')" id="t-trips"><i class="ti ti-map"></i>Trips</button></div>
+<div class="tabs app-hidden" id="app-tabs"><button class="tab active" onclick="switchTab('dashboard')" id="t-dashboard"><i class="ti ti-layout-dashboard"></i>Home</button><button class="tab" onclick="switchTab('add')" id="t-add"><i class="ti ti-circle-plus"></i>Add</button><button class="tab" onclick="switchTab('friends')" id="t-friends"><i class="ti ti-users"></i>Friends</button><button class="tab" onclick="switchTab('settle')" id="t-settle"><i class="ti ti-arrows-exchange"></i>Settle</button><button class="tab" onclick="switchTab('history')" id="t-history"><i class="ti ti-history"></i>History</button><button class="tab" onclick="switchTab('trips')" id="t-trips"><i class="ti ti-map"></i>Trips</button></div>
 
 <div class="modal-overlay" id="detail-modal" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()"><div class="modal-handle"></div><div id="modal-content"></div></div></div>
 <div class="toast" id="toast"></div>
@@ -115,12 +154,16 @@
 const firebaseConfig = { apiKey:"AIzaSyCMnkk9tfexhUeBAcdZoppUJW2I8cXF-dw", authDomain:"split-o-friend.firebaseapp.com", databaseURL:"https://split-o-friend-default-rtdb.firebaseio.com", projectId:"split-o-friend", storageBucket:"split-o-friend.firebasestorage.app", messagingSenderId:"528909969367", appId:"1:528909969367:web:15b359dda39a8984a54d92" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const appRef = db.ref("splitofriend/liveState");
+let appRef = null;
+let activeFirebaseListener = null;
+const usersRef = db.ref("splitofriend/users");
 </script>
 <script>
 const defaultTripId = 'trip_' + Date.now();
-const PROFILE_KEY = 'splitofriend_profileName';
+const SESSION_KEY = 'splitofriend_loggedInUser';
 let currentUserName = '';
+let currentUserKey = '';
+let authMode = 'login';
 let state = {
   activeTripId: defaultTripId,
   currency:'£',
@@ -151,22 +194,92 @@ let addFormInitialized = false;
 function escapeHtml(s){ return String(s ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 function jsArg(s){ return JSON.stringify(String(s ?? '')); }
 
-function ensureProfile() {
-  let saved = (localStorage.getItem(PROFILE_KEY) || '').trim();
-  while (!saved) {
-    saved = (prompt('Enter your name for this device:', 'Mohit') || '').trim();
-    if (!saved) alert('Name is required so expenses can be saved under your profile.');
+function userKey(username) {
+  return String(username || '').trim().toLowerCase().replace(/[.#$\[\]\/]/g, '_');
+}
+
+async function hashPassword(password) {
+  const data = new TextEncoder().encode(password);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  document.getElementById('login-toggle').classList.toggle('active', mode === 'login');
+  document.getElementById('register-toggle').classList.toggle('active', mode === 'register');
+  document.getElementById('name-group').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('auth-title').textContent = mode === 'register' ? 'Create your profile' : 'Login to your profile';
+  document.getElementById('auth-submit').innerHTML = mode === 'register' ? '<i class="ti ti-user-plus"></i> Register' : '<i class="ti ti-login"></i> Login';
+}
+
+async function submitAuth() {
+  const username = document.getElementById('auth-username').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const name = document.getElementById('auth-name').value.trim();
+  if (!username) return toast('⚠️ Please enter username');
+  if (!password || password.length < 4) return toast('⚠️ Password must be at least 4 characters');
+  const key = userKey(username);
+  const userRef = usersRef.child(key);
+  const snap = await userRef.once('value');
+  const passwordHash = await hashPassword(password);
+
+  if (authMode === 'register') {
+    if (!name) return toast('⚠️ Please enter your name');
+    if (snap.exists()) return toast('⚠️ Username already exists. Please login.');
+    currentUserKey = key;
+    currentUserName = name;
+    appRef = userRef.child('state');
+    const starterState = normalizeState(null);
+    await userRef.set({
+      profile: { username, name, passwordHash, createdAt: Date.now() },
+      state: starterState
+    });
+    localStorage.setItem(SESSION_KEY, username);
+    state = starterState;
+    startAppForLoggedInUser();
+    toast('✅ Profile created');
+    return;
   }
-  currentUserName = saved;
-  localStorage.setItem(PROFILE_KEY, currentUserName);
+
+  if (!snap.exists()) return toast('⚠️ Username not found. Please register first.');
+  const data = snap.val() || {};
+  if (data.profile?.passwordHash !== passwordHash) return toast('⚠️ Incorrect password');
+  currentUserKey = key;
+  currentUserName = data.profile?.name || username;
+  appRef = userRef.child('state');
+  localStorage.setItem(SESSION_KEY, username);
+  startAppForLoggedInUser();
+  toast('✅ Logged in');
+}
+
+function startAppForLoggedInUser() {
+  document.getElementById('auth-screen').classList.add('app-hidden');
+  document.getElementById('app-topbar').classList.remove('app-hidden');
+  document.getElementById('app-wrap').classList.remove('app-hidden');
+  document.getElementById('app-tabs').classList.remove('app-hidden');
   updateProfileLabel();
+  load();
+}
+
+function logout() {
+  if (appRef) appRef.off('value');
+  appRef = null;
+  currentUserKey = '';
+  currentUserName = '';
+  localStorage.removeItem(SESSION_KEY);
+  document.getElementById('auth-screen').classList.remove('app-hidden');
+  document.getElementById('app-topbar').classList.add('app-hidden');
+  document.getElementById('app-wrap').classList.add('app-hidden');
+  document.getElementById('app-tabs').classList.add('app-hidden');
+  toast('Logged out');
 }
 
 function changeProfile() {
   const name = (prompt('Update your profile name:', currentUserName || 'Your Name') || '').trim();
   if (!name) return;
   currentUserName = name;
-  localStorage.setItem(PROFILE_KEY, currentUserName);
+  if (currentUserKey) usersRef.child(currentUserKey).child('profile/name').set(name);
   selectedMembers = [];
   updateProfileLabel();
   renderAll();
@@ -247,19 +360,22 @@ function allMembers() {
 }
 
 function save() {
-  localStorage.setItem('splitofriend', JSON.stringify(state));
+  if (currentUserKey) localStorage.setItem('splitofriend_'+currentUserKey, JSON.stringify(state));
   renderAll();
+  if (!appRef) return;
   appRef.set(JSON.parse(JSON.stringify(state)))
     .then(()=>console.log('✅ Saved'))
     .catch(e=>{ console.error(e); toast('⚠️ Firebase save failed: '+e.message); });
 }
 
 function load() {
-  const d = localStorage.getItem('splitofriend');
+  if (!appRef) return;
+  if (activeFirebaseListener) appRef.off('value', activeFirebaseListener);
+  const d = currentUserKey ? localStorage.getItem('splitofriend_'+currentUserKey) : null;
   if (d) { try { state = normalizeState(JSON.parse(d)); } catch(e){ console.error(e); } }
   applyStateToUI();
   renderAll();
-  appRef.on('value', snap => {
+  activeFirebaseListener = snap => {
     if (snap.exists()) {
       state = normalizeState(snap.val());
       localStorage.setItem('splitofriend', JSON.stringify(state));
@@ -268,7 +384,8 @@ function load() {
     } else {
       save();
     }
-  }, e => toast('⚠️ Firebase connection failed: '+e.message));
+  };
+  appRef.on('value', activeFirebaseListener, e => toast('⚠️ Firebase connection failed: '+e.message));
 }
 
 function applyStateToUI() {
@@ -393,7 +510,7 @@ function renderAddForm(){
 
   mc.innerHTML = members.map(m => {
     const selected = selectedMembers.some(x => x.toLowerCase() === m.toLowerCase());
-    return `<div class="chip ${selected ? 'selected' : ''}" onclick="toggleMember(this,${jsArg(m)})">${initials(m)} ${escapeHtml(m)}</div>`;
+    return `<div class="chip ${selected ? 'selected' : ''}" onclick="toggleMember(${jsArg(m)}, event)">${initials(m)} ${escapeHtml(m)}</div>`;
   }).join('');
 
   const di = document.getElementById('e-date');
@@ -410,22 +527,23 @@ function renderAddForm(){
   setSplit(splitType);
 }
 
-function toggleMember(el, name) {
+function toggleMember(name, evt) {
+  if (evt) evt.stopPropagation();
+
+  const normalizedName = displayName(name);
   const exists = selectedMembers.some(
-    m => m.toLowerCase() === name.toLowerCase()
+    m => displayName(m).toLowerCase() === normalizedName.toLowerCase()
   );
 
   if (exists) {
     selectedMembers = selectedMembers.filter(
-      m => m.toLowerCase() !== name.toLowerCase()
+      m => displayName(m).toLowerCase() !== normalizedName.toLowerCase()
     );
-    el.classList.remove('selected');
   } else {
-    selectedMembers.push(name);
-    el.classList.add('selected');
+    selectedMembers.push(normalizedName);
   }
 
-  console.log('Selected members:', selectedMembers);
+  renderAddForm();
 }
 
 function setSplit(type){splitType=type; document.getElementById('so-equal')?.classList.toggle('selected',type==='equal'); document.getElementById('so-payer')?.classList.toggle('selected',type==='payer');}
@@ -463,7 +581,7 @@ function clearExpenseForm(){
   selectedMembers = [];
   addFormInitialized = false;
 }
-function cancelEdit(showToast=true){clearExpenseForm(); if(activeTab==='add')renderAddForm(); if(showToast)toast('Edit cancelled');}
+function cancelEdit(showToast=true, goHome=false){clearExpenseForm(); if(goHome){ switchTab('dashboard'); } else if(activeTab==='add'){ renderAddForm(); } if(showToast)toast('Edit cancelled');}
 function editExpense(id){
   const e=currentTrip().expenses.find(x=>x.id===id);
   if(!e)return;
@@ -635,8 +753,7 @@ document.addEventListener('click', function(event) {
   }
 });
 
-ensureProfile();
-load();
+setAuthMode('login');
 </script>
 </body>
 </html>
