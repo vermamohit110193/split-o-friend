@@ -99,9 +99,10 @@
   <div id="tab-friends" class="section"><div class="card"><div class="card-title">Add a friend to this trip</div><div class="row-flex"><input type="text" id="f-name" placeholder="Name" onkeydown="if(event.key==='Enter')addFriend()"><button class="btn" onclick="addFriend()"><i class="ti ti-user-plus"></i> Add</button></div></div><div class="card"><div class="card-title">Trip group</div><div id="friends-list"></div></div></div>
   <div id="tab-settle" class="section"><div class="card"><div class="card-title">Who pays whom</div><div id="settle-list"></div></div><div class="card"><div class="card-title">Per person summary</div><div id="person-summary"></div></div></div>
   <div id="tab-history" class="section"><div class="card"><div class="card-header"><div class="card-title" style="margin-bottom:0">All expenses</div><button class="btn sm danger" onclick="clearAll()"><i class="ti ti-trash"></i> Clear trip expenses</button></div><div id="history-list"></div></div></div>
+  <div id="tab-trips" class="section"><div class="card"><div class="card-header"><div class="card-title" style="margin-bottom:0">All trips</div><button class="btn sm" onclick="createTrip()"><i class="ti ti-plus"></i> New trip</button></div><div id="trips-list"></div></div></div>
 </div>
 
-<div class="tabs"><button class="tab active" onclick="switchTab('dashboard')" id="t-dashboard"><i class="ti ti-layout-dashboard"></i>Home</button><button class="tab" onclick="switchTab('add')" id="t-add"><i class="ti ti-circle-plus"></i>Add</button><button class="tab" onclick="switchTab('friends')" id="t-friends"><i class="ti ti-users"></i>Friends</button><button class="tab" onclick="switchTab('settle')" id="t-settle"><i class="ti ti-arrows-exchange"></i>Settle</button><button class="tab" onclick="switchTab('history')" id="t-history"><i class="ti ti-history"></i>History</button></div>
+<div class="tabs"><button class="tab active" onclick="switchTab('dashboard')" id="t-dashboard"><i class="ti ti-layout-dashboard"></i>Home</button><button class="tab" onclick="switchTab('add')" id="t-add"><i class="ti ti-circle-plus"></i>Add</button><button class="tab" onclick="switchTab('friends')" id="t-friends"><i class="ti ti-users"></i>Friends</button><button class="tab" onclick="switchTab('settle')" id="t-settle"><i class="ti ti-arrows-exchange"></i>Settle</button><button class="tab" onclick="switchTab('history')" id="t-history"><i class="ti ti-history"></i>History</button><button class="tab" onclick="switchTab('trips')" id="t-trips"><i class="ti ti-map"></i>Trips</button></div>
 
 <div class="modal-overlay" id="detail-modal" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()"><div class="modal-handle"></div><div id="modal-content"></div></div></div>
 <div class="toast" id="toast"></div>
@@ -340,14 +341,14 @@ function switchTab(t){
     addFormInitialized = false;
   }
 
-  ['dashboard','add','friends','settle','history'].forEach(id=>{
+  ['dashboard','add','friends','settle','history','trips'].forEach(id=>{
     document.getElementById('tab-'+id).classList.toggle('active',id===t);
     document.getElementById('t-'+id).classList.toggle('active',id===t);
   });
 
   renderAll();
 }
-function renderAll(){renderTripSelector(); renderDashboard(); renderFriends(); renderSettle(); renderHistory(); if(activeTab==='add') renderAddForm();}
+function renderAll(){renderTripSelector(); renderDashboard(); renderFriends(); renderSettle(); renderHistory(); renderTrips(); if(activeTab==='add') renderAddForm();}
 function latestExpenses(){return (currentTrip()?.expenses||[]).slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0) || (b.date||'').localeCompare(a.date||'') || (b.id||0)-(a.id||0));}
 
 function renderDashboard(){
@@ -532,6 +533,60 @@ function renderSettle(){
     const net=bal[m]||0;
     return `<div class="list-item"><div class="avatar" style="${avatarStyle(m)}">${initials(m)}</div><div class="list-info"><div class="list-name">${escapeHtml(m)}${m.toLowerCase()===currentUserName.toLowerCase()?' (you)':''}</div><div class="list-sub">Paid ${fmt(paid)} · Share ${fmt(share)}</div></div><div class="amount-big ${net>=0?'green-text':'red-text'}">${net>=0?'+':'-'}${fmt(net)}</div></div>`;
   }).join('');
+}
+
+
+function renderTrips(){
+  const el=document.getElementById('trips-list');
+  if(!el)return;
+  const trips=Object.values(state.trips||{}).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(!trips.length){
+    el.innerHTML='<div class="empty"><i class="ti ti-map"></i>No trips yet</div>';
+    return;
+  }
+  el.innerHTML=trips.map(t=>{
+    const expenseCount=(t.expenses||[]).length;
+    const total=(t.expenses||[]).reduce((sum,e)=>sum+Number(e.amount||0),0);
+    const friendCount=(t.friends||[]).length;
+    const isActive=t.id===state.activeTripId;
+    const activeBadge=isActive?'<span class="chip selected" style="cursor:default">Active</span>':'';
+    const deleteBtn=trips.length>1
+      ? `<button class="btn sm danger" onclick="deleteTrip(${jsArg(t.id)})"><i class="ti ti-trash"></i> Delete</button>`
+      : '<button class="btn sm danger" disabled style="opacity:.45;cursor:not-allowed"><i class="ti ti-trash"></i> Delete</button>';
+    return `<div class="list-item">
+      <div class="cat-icon"><i class="ti ti-map-pin"></i></div>
+      <div class="list-info">
+        <div class="list-name">${escapeHtml(t.name)} ${activeBadge}</div>
+        <div class="list-sub">${friendCount} friends · ${expenseCount} expenses · Total ${fmt(total)}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn sm" onclick="switchTripFromList(${jsArg(t.id)})"><i class="ti ti-eye"></i> View</button>
+        ${deleteBtn}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function switchTripFromList(id){
+  switchTrip(id);
+  switchTab('dashboard');
+}
+
+function deleteTrip(id){
+  const trips=Object.values(state.trips||{});
+  if(trips.length<=1) return toast('⚠️ At least one trip is required');
+  const trip=state.trips[id];
+  if(!trip)return;
+  if(!confirm('Delete trip "'+trip.name+'"? This will permanently delete all expenses in this trip.'))return;
+  delete state.trips[id];
+  if(state.activeTripId===id){
+    const remaining=Object.values(state.trips).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    state.activeTripId=remaining[0]?.id;
+  }
+  selectedMembers=[];
+  cancelEdit(false);
+  save();
+  toast('🗑️ Trip deleted');
 }
 
 function renderHistory(){
