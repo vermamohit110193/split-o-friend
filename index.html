@@ -209,8 +209,8 @@ function setAuthMode(mode) {
     ? '<i class="ti ti-user-plus"></i> Register'
     : '<i class="ti ti-login"></i> Login';
   document.getElementById('auth-help').textContent = authMode === 'register'
-    ? 'Already have a profile? Click Login and enter your username/password.'
-    : 'No profile yet? Click Register and create a username/password.';
+    ? 'After registration, your account will wait for admin approval before login is allowed.'
+    : 'No profile yet? Click Register. Login works only after admin approval.';
 }
 
 function createBlankState() {
@@ -248,16 +248,25 @@ function submitAuth() {
           username: key,
           displayName: currentUserName,
           password: encodePassword(password),
+          approved: false,
+          status: 'Pending Approval',
           createdAt: Date.now()
         },
         data: state
-      }).then(() => startSession(key, currentUserName));
+      }).then(() => {
+        setAuthMode('login');
+        document.getElementById('auth-password').value = '';
+        toast('✅ Registered. Waiting for admin approval before login.');
+      });
     }
 
     if (!snap.exists()) return toast('⚠️ User not found. Please register first.');
     const user = snap.val() || {};
     const profile = user.profile || {};
     if (profile.password !== encodePassword(password)) return toast('⚠️ Incorrect password');
+    if (profile.approved !== true) {
+      return toast('⏳ Your account is pending admin approval. Please try after approval.');
+    }
     startSession(key, profile.displayName || username);
   }).catch(e => toast('⚠️ Login failed: ' + e.message));
 }
